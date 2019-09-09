@@ -1,0 +1,4 @@
+﻿int Flatten(int3 size, int3 i)
+{
+	return i.x + size.y * (i.y + size.x * i.z);
+}

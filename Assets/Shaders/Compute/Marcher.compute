@@ -1,0 +1,33 @@
+﻿#pragma kernel CSMain
+
+#include "Util.compute"
+#include "Table.compute"
+
+static const int NUM_THREADS = 8;
+
+struct Triangles
+{
+	float3 a, b, c;
+};
+
+AppendStructuredBuffer<Triangle> triangles;
+StructuredBuffer<float> points;
+int3 size;
+float threshold;
+
+int Configure(int3 i)
+{
+
+}
+
+void ProcessPoint(int3 i)
+{
+	int config = Configure(i);
+}
+
+[numthreads(NUM_THREADS, NUM_THREADS, NUM_THREADS)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+	if(id.x >= size.x - 1 || id.y >= size.y - 1 || id.z >= size.z - 1) return;
+	ProcessPoint(id.xyz);
+}
