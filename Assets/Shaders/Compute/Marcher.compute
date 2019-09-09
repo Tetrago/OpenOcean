@@ -23,7 +23,8 @@ float GetValue(int3 i)
 
 float Interpolate(float a, float b)
 {
-	return (InverseLerp(-1, 1, a) + InverseLerp(-1, 1, b)) * 0.5 * step_;
+	float t = (threshold_ - a) / (b - a);
+	return a + t * (b - a);
 }
 
 int Configure(int3 i)
@@ -74,9 +75,9 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 	float3 triPoints[3u];
 	uint index = 0u;
 
-	uint i = 0u;
-	while(tris[i] != -1)
+	for(uint i = 0u; i < 16u; ++i)
 	{
+		if(tris[i] == -1) break;
 		triPoints[index] = FindPoint(tris[i], id.xyz);
 
 		if(index == 2u)
@@ -95,10 +96,5 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 		{
 			index++;
 		}
-
-		if(i == 15u)
-			break;
-		else
-			i++;
 	}
 }

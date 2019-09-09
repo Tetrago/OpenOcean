@@ -14,9 +14,9 @@ public class Chunk
         mesh_.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
     }
 
-    public void Generate(Noise noise, Vector3Int size)
+    public void Generate(Noise noise, Vector3Int size, NoiseProfile profile)
     {
-        points_ = noise.Generate(size);
+        points_ = noise.Generate(size, profile);
     }
 
     public void Build(Marcher marcher, Vector3Int size, float threshold, float step)

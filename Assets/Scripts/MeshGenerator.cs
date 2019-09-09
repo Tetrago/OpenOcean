@@ -17,8 +17,8 @@ public static class MeshGenerator
             vertices[v + 2u] = tri.c_;
 
             indices[t] = (int)v;
-            indices[t] = (int)v + 1;
-            indices[t] = (int)v + 2;
+            indices[t + 1u] = (int)v + 1;
+            indices[t + 2u] = (int)v + 2;
 
             v += 3;
             t += 3;

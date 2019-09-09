@@ -7,9 +7,30 @@ static const int NUM_THREADS = 8;
 
 RWStructuredBuffer<float> points_;
 int3 size_;
+float3 scale_;
+uint octaves_;
+float persistance_;
+float lacunarity_;
+float2 lerp_;
 
 [numthreads(NUM_THREADS, NUM_THREADS, NUM_THREADS)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
-	points_[Flatten(size_, id.xyz)] = snoise(id.xyz);
+	float amplitude = 1;
+	float frequency = 1;
+
+	float height = 0;
+
+	for(uint i = 0u; i < octaves_; ++i)
+	{
+		float3 s = id.xyz / scale_ * frequency;
+		float value = snoise(s);
+		
+		height += value * amplitude;
+
+		amplitude *= persistance_;
+		frequency *= lacunarity_;
+	}
+
+	points_[Flatten(size_, id.xyz)] = InverseLerp(lerp_.x, lerp_.y, height);
 }

@@ -11,12 +11,29 @@ public class Noise : MonoBehaviour
         kernel_ = shader_.FindKernel("CSMain");
     }
 
-    public float[] Generate(Vector3Int size)
+    private static Vector2 GetLerp(NoiseProfile profile)
+    {
+        float amplitude = 1;
+        for(uint i = 0u; i < profile.octaves_; ++i)
+            amplitude *= profile.persistance_;
+
+        return new Vector2(-amplitude, amplitude);
+    }
+
+    public float[] Generate(Vector3Int size, NoiseProfile profile)
     {
         ComputeBuffer buffer = new ComputeBuffer(size.x * size.y * size.z, sizeof(float));
 
         shader_.SetBuffer(kernel_, "points_", buffer);
         shader_.SetInts("size_", size.x, size.y, size.z);
+        shader_.SetFloats("scale_", profile.scale_.x, profile.scale_.y, profile.scale_.z);
+        shader_.SetInt("octaves_", profile.octaves_);
+        shader_.SetFloat("persistance_", profile.persistance_);
+        shader_.SetFloat("lacunarity_", profile.lacunarity_);
+
+        Vector2 lerp = GetLerp(profile);
+        shader_.SetFloats("lerp_", lerp.x, lerp.y);
+
         shader_.Dispatch(kernel_, size.x / World.THREADS, size.y / World.THREADS, size.x / World.THREADS);
 
         float[] points = new float[size.x * size.y * size.z];
