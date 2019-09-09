@@ -2,17 +2,28 @@
 
 public class Chunk
 {
-    public float[] Points { get; private set; }
-
-    private Vector3 pos;
+    private float[] points_;
+    private Vector3 pos_;
+    private Mesh mesh_;
 
     public Chunk(Vector3 pos)
     {
-        this.pos = pos;
+        pos_ = pos;
+
+        mesh_ = new Mesh();
+        mesh_.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
     }
 
     public void Generate(Noise noise, Vector3Int size)
     {
-        Points = noise.Generate(size);
+        points_ = noise.Generate(size);
     }
+
+    public void Build(Marcher marcher, Vector3Int size, float threshold, float step)
+    {
+        MeshGenerator.Build(ref mesh_, marcher.Triangulate(size, points_, threshold, step));
+        mesh_.RecalculateNormals();
+    }
+
+    public Mesh Mesh => mesh_;
 }

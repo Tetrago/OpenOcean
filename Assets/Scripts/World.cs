@@ -1,50 +1,45 @@
 ﻿using UnityEngine;
 
 [RequireComponent(typeof(Noise))]
+[RequireComponent(typeof(Marcher))]
 public class World : MonoBehaviour
 {
-    public const int NUM_COMPUTE_THREADS = 8;
+    public static World instance_;
 
-    public Vector3Int size;
-    [Range(-1, 1)] public float threshold;
+    public const int THREADS = 8;
 
-    private Noise noise;
-    private Chunk chunk;
+    public Vector3Int size_;
+    [Range(-1, 1)] public float threshold_;
+    public float step_;
+    public Material material_;
+
+    private Noise noise_;
+    private Marcher marcher_;
+    private Chunk chunk_;
 
     private void Awake()
     {
-        noise = GetComponent<Noise>();
+        instance_ = this;
+        noise_ = GetComponent<Noise>();
+        marcher_ = GetComponent<Marcher>();
     }
 
     private void Start()
     {
-        chunk = new Chunk(Vector3.zero);
-        chunk.Generate(noise, size);
+        chunk_ = new Chunk(Vector3.zero);
+        chunk_.Generate(noise_, size_);
+        chunk_.Build(marcher_, size_, threshold_, step_);
     }
 
-    private void OnDrawGizmos()
+    private void Update()
     {
-        if(chunk == null) return;
-
-        for(int x = 0; x < size.x; ++x)
-        {
-            for(int y = 0; y < size.y; ++y)
-            {
-                for(int z = 0; z < size.z; ++z)
-                {
-                    float value = Mathf.InverseLerp(-1, 1, chunk.Points[x + size.y * (y + size.x * z)]);
-                    Gizmos.color = new Color(value, value, value);
-                    if(value >= threshold)
-                        Gizmos.DrawSphere(new Vector3(x, y, z), 0.1f);
-                }
-            }
-        }
+        Graphics.DrawMesh(chunk_.Mesh, Vector3.zero, Quaternion.identity, material_, 0);
     }
 
     private void OnValidate()
     {
-        size.x -= size.x % NUM_COMPUTE_THREADS;
-        size.y -= size.y % NUM_COMPUTE_THREADS;
-        size.z -= size.z % NUM_COMPUTE_THREADS;
+        size_.x -= size_.x % THREADS;
+        size_.y -= size_.y % THREADS;
+        size_.z -= size_.z % THREADS;
     }
 }

@@ -5,29 +5,100 @@
 
 static const int NUM_THREADS = 8;
 
-struct Triangles
+struct Triangle
 {
-	float3 a, b, c;
+	float3 a_, b_, c_;
 };
 
-AppendStructuredBuffer<Triangle> triangles;
-StructuredBuffer<float> points;
-int3 size;
-float threshold;
+AppendStructuredBuffer<Triangle> triangles_;
+StructuredBuffer<float> points_;
+int3 size_;
+float threshold_;
+float step_;
+
+float GetValue(int3 i)
+{
+	return points_[Flatten(size_, i)];
+}
+
+float Interpolate(float a, float b)
+{
+	return (InverseLerp(-1, 1, a) + InverseLerp(-1, 1, b)) * 0.5 * step_;
+}
 
 int Configure(int3 i)
 {
-
+	int config = 0;
+	if(GetValue(i) >= threshold_) config |= 1;
+	if(GetValue(i + int3(1, 0, 0)) >= threshold_) config |= 2;
+	if(GetValue(i + int3(1, 0, 1)) >= threshold_) config |= 4;
+	if(GetValue(i + int3(0, 0, 1)) >= threshold_) config |= 8;
+	if(GetValue(i + int3(0, 1, 0)) >= threshold_) config |= 16;
+	if(GetValue(i + int3(1, 1, 0)) >= threshold_) config |= 32;
+	if(GetValue(i + int3(1, 1, 1)) >= threshold_) config |= 64;
+	if(GetValue(i + int3(0, 1, 1)) >= threshold_) config |= 128;
+	return config;
 }
 
-void ProcessPoint(int3 i)
+float3 FindPoint(int tri, int3 i)
 {
-	int config = Configure(i);
+	float3 pos = i * step_;
+
+	switch(tri)
+	{
+	case 0: return pos + float3(1, 0, 0) * Interpolate(pos.x, GetValue(i + int3(1, 0, 0)));
+	case 1: return pos + float3(0, 0, 1) * Interpolate(pos.z, GetValue(i + int3(0, 0, 1))) + float3(step_, 0, 0);
+	case 2: return pos + float3(1, 0, 0) * Interpolate(pos.x, GetValue(i + int3(1, 0, 0))) + float3(0, 0, step_);
+	case 3: return pos + float3(0, 0, 1) * Interpolate(pos.z, GetValue(i + int3(0, 0, 1)));
+	case 4: return pos + float3(1, 0, 0) * Interpolate(pos.x, GetValue(i + int3(1, 0, 0))) + float3(0, step_, 0);
+	case 5: return pos + float3(0, 0, 1) * Interpolate(pos.z, GetValue(i + int3(0, 0, 1))) + float3(step_, 0, 0) + float3(0, step_, 0);
+	case 6: return pos + float3(1, 0, 0) * Interpolate(pos.x, GetValue(i + int3(1, 0, 0))) + float3(0, 0, step_) + float3(0, step_, 0);
+	case 7: return pos + float3(0, 0, 1) * Interpolate(pos.z, GetValue(i + int3(0, 0, 1))) + float3(0, step_, 0);
+	case 8: return pos + float3(0, 1, 0) * Interpolate(pos.x, GetValue(i + int3(0, 1, 0)));
+	case 9: return pos + float3(0, 1, 0) * Interpolate(pos.z, GetValue(i + int3(0, 1, 0))) + float3(step_, 0, 0);
+	case 10: return pos + float3(0, 1, 0) * Interpolate(pos.x, GetValue(i + int3(0, 1, 0))) + float3(step_, 0, 0) + float3(0, 0, step_);
+	case 11: return pos + float3(0, 1, 0) * Interpolate(pos.z, GetValue(i + int3(0, 1, 0))) + float3(0, 0, step_);
+	}
+
+	return float3(0, 0, 0);
 }
 
 [numthreads(NUM_THREADS, NUM_THREADS, NUM_THREADS)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
-	if(id.x >= size.x - 1 || id.y >= size.y - 1 || id.z >= size.z - 1) return;
-	ProcessPoint(id.xyz);
+	if(id.x >= size_.x - 1u || id.y >= size_.y - 1u || id.z >= size_.z - 1u) return;
+
+	int config = Configure(id.xyz);
+	int tris[16u] = triTable[config];
+
+	float3 triPoints[3u];
+	uint index = 0u;
+
+	uint i = 0u;
+	while(tris[i] != -1)
+	{
+		triPoints[index] = FindPoint(tris[i], id.xyz);
+
+		if(index == 2u)
+		{
+			Triangle tri;
+
+			tri.a_ = triPoints[0u];
+			tri.b_ = triPoints[1u];
+			tri.c_ = triPoints[2u];
+
+			triangles_.Append(tri);
+
+			index = 0u;
+		}
+		else
+		{
+			index++;
+		}
+
+		if(i == 15u)
+			break;
+		else
+			i++;
+	}
 }

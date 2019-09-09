@@ -5,11 +5,11 @@
 
 static const int NUM_THREADS = 8;
 
-RWStructuredBuffer<float> points;
-int3 size;
+RWStructuredBuffer<float> points_;
+int3 size_;
 
 [numthreads(NUM_THREADS, NUM_THREADS, NUM_THREADS)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
-	points[Flatten(size, id.xyz)] = snoise(id.xyz);
+	points_[Flatten(size_, id.xyz)] = snoise(id.xyz);
 }

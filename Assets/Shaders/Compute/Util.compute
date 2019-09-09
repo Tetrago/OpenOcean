@@ -2,3 +2,8 @@
 {
 	return i.x + size.y * (i.y + size.x * i.z);
 }
+
+float InverseLerp(float a, float b, float v)
+{
+	return (v - a) / (b - a);
+}
