@@ -8,6 +8,7 @@ static const int NUM_THREADS = 8;
 RWStructuredBuffer<float> points_;
 int3 size_;
 float3 scale_;
+float3 offset_;
 uint octaves_;
 float persistance_;
 float lacunarity_;
@@ -23,7 +24,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 
 	for(uint i = 0u; i < octaves_; ++i)
 	{
-		float3 s = id.xyz / scale_ * frequency;
+		float3 s = (id.xyz + offset_) / scale_ * frequency;
 		float value = snoise(s);
 		
 		height += value * amplitude;

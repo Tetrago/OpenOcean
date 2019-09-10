@@ -16,14 +16,16 @@ public class Chunk
 
     public void Generate(Noise noise, Vector3Int size, NoiseProfile profile)
     {
-        points_ = noise.Generate(size, profile);
+        points_ = noise.Generate(size, pos_, profile);
     }
 
     public void Build(Marcher marcher, Vector3Int size, float threshold, float step)
     {
         MeshGenerator.Build(ref mesh_, marcher.Triangulate(size, points_, threshold, step));
         mesh_.RecalculateNormals();
+        ColliderManager.Collider(this);
     }
 
+    public Vector3 Position => pos_;
     public Mesh Mesh => mesh_;
 }

@@ -20,12 +20,13 @@ public class Noise : MonoBehaviour
         return new Vector2(-amplitude, amplitude);
     }
 
-    public float[] Generate(Vector3Int size, NoiseProfile profile)
+    public float[] Generate(Vector3Int size, Vector3 pos, NoiseProfile profile)
     {
         ComputeBuffer buffer = new ComputeBuffer(size.x * size.y * size.z, sizeof(float));
 
         shader_.SetBuffer(kernel_, "points_", buffer);
         shader_.SetInts("size_", size.x, size.y, size.z);
+        shader_.SetFloats("offset_", pos.x, pos.y, pos.z);
         shader_.SetFloats("scale_", profile.scale_.x, profile.scale_.y, profile.scale_.z);
         shader_.SetInt("octaves_", profile.octaves_);
         shader_.SetFloat("persistance_", profile.persistance_);
