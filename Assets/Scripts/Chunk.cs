@@ -5,6 +5,7 @@ public class Chunk
     private float[] points_;
     private Vector3 pos_;
     private Mesh mesh_;
+    private Feature.Stack stack_;
 
     public Chunk(Vector3 pos)
     {
@@ -19,8 +20,9 @@ public class Chunk
         points_ = noise.Generate(size, pos_, profile);
     }
 
-    public void Build(Marcher marcher, Vector3Int size, float threshold, float step)
+    public void Build(Marcher marcher, Feature feature, System.Random rand, Vector3Int size, float threshold, float step, FeatureProfile profile)
     {
+        stack_ = feature.Features(size, points_, threshold, profile, rand);
         MeshGenerator.Build(ref mesh_, marcher.Triangulate(size, points_, threshold, step));
         mesh_.RecalculateNormals();
         ColliderManager.Collider(this);
@@ -28,4 +30,5 @@ public class Chunk
 
     public Vector3 Position => pos_;
     public Mesh Mesh => mesh_;
+    public Feature.Stack Features => stack_;
 }
