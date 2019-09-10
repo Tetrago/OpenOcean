@@ -22,20 +22,17 @@ public class Feature : MonoBehaviour
         kernel_ = shader_.FindKernel("CSMain");
     }
 
-    public Stack Features(Vector3Int size, float[] points, float threshold, FeatureProfile profile, System.Random rand)
+    public Stack Features(Vector3Int size, float[] points, float threshold, FeatureProfile profile)
     {
-        float lineRand = rand.Next(profile.lineRandRange_.x, profile.lineRandRange_.y) * profile.randMultiplier_;
-
         Stack fs = new Stack();
 
         ComputeBuffer pointsBuffer = new ComputeBuffer(points.Length, sizeof(float));
         ComputeBuffer lineBuffer = new ComputeBuffer(size.x * size.y * size.z, sizeof(int) * 3 + sizeof(float), ComputeBufferType.Append);
-        ComputeBuffer lineCountBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
+        ComputeBuffer countBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
 
         shader_.SetInts("size_", size.x, size.y, size.z);
         shader_.SetFloat("threshold_", threshold);
         shader_.SetFloat("lineCutoff_", profile.lineCutoff_);
-        shader_.SetFloat("lineRand_", lineRand);
 
         pointsBuffer.SetData(points);
 
@@ -46,16 +43,20 @@ public class Feature : MonoBehaviour
 
         shader_.Dispatch(kernel_, size.x / World.THREADS, size.y / World.THREADS, size.z / World.THREADS);
 
-        ComputeBuffer.CopyCount(lineBuffer, lineCountBuffer, 0);
-        int[] lineCountArray = { 0 };
-        lineCountBuffer.GetData(lineCountArray);
+        ComputeBuffer.CopyCount(lineBuffer, countBuffer, 0);
 
-        Line[] lines = new Line[lineCountArray[0u]];
-        lineBuffer.GetData(lines);
+        int[] countArray = { 0 };
+        countBuffer.GetData(countArray);
 
-        fs.lines_ = lines;
+        if(countArray[0u] > 0)
+        {
+            Line[] lines = new Line[countArray[0u]];
+            lineBuffer.GetData(lines);
 
-        lineCountBuffer.Release();
+            fs.lines_ = lines;
+        }
+
+        countBuffer.Release();
         lineBuffer.Release();
         pointsBuffer.Release();
 

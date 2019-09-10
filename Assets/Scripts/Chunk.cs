@@ -20,9 +20,9 @@ public class Chunk
         points_ = noise.Generate(size, pos_, profile);
     }
 
-    public void Build(Marcher marcher, Feature feature, System.Random rand, Vector3Int size, float threshold, float step, FeatureProfile profile)
+    public void Build(Marcher marcher, Feature feature, Vector3Int size, float threshold, float step, FeatureProfile profile)
     {
-        stack_ = feature.Features(size, points_, threshold, profile, rand);
+        stack_ = feature.Features(size, points_, threshold, profile);
         MeshGenerator.Build(ref mesh_, marcher.Triangulate(size, points_, threshold, step));
         mesh_.RecalculateNormals();
         ColliderManager.Collider(this);

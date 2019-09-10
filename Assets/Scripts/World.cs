@@ -9,7 +9,6 @@ public class World : MonoBehaviour
 
     public const int THREADS = 8;
 
-    public int seed_;
     public NoiseProfile noiseProfile_;
     public FeatureProfile featureProfile_;
     public Vector3Int size_;
@@ -23,7 +22,6 @@ public class World : MonoBehaviour
     private Feature feature_;
 
     private Chunk[] chunks_;
-    private System.Random rand_;
 
     private void Awake()
     {
@@ -32,8 +30,6 @@ public class World : MonoBehaviour
         noise_ = GetComponent<Noise>();
         marcher_ = GetComponent<Marcher>();
         feature_ = GetComponent<Feature>();
-
-        rand_ = new System.Random(seed_);
     }
 
     private void Start()
@@ -64,7 +60,7 @@ public class World : MonoBehaviour
     public void Build()
     {
         foreach(Chunk chunk in chunks_)
-            chunk.Build(marcher_, feature_, rand_, size_, threshold_, step_, featureProfile_);
+            chunk.Build(marcher_, feature_, size_, threshold_, step_, featureProfile_);
     }
 
     private void Update()
@@ -82,11 +78,16 @@ public class World : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if(chunks_ != null)
+        if(chunks_ == null) return;
+        Gizmos.color = Color.green;
+
+        foreach(Chunk chunk in chunks_)
         {
-            foreach(Feature.Line line in chunks_[2 + worldSize_.y * (0 + worldSize_.x * 2)].Features.lines_)
+            if(chunk.Features.lines_ == null) return;
+            
+            foreach(Feature.Line line in chunk.Features.lines_)
             {
-                Debug.DrawLine(line.index_, line.index_ + Vector3.up * line.height_);
+                Debug.DrawLine(line.index_ + chunk.Position, line.index_ + chunk.Position + Vector3.up * line.height_);
             }
         }
     }

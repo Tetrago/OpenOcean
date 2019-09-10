@@ -157,14 +157,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc5aaf79e564c064c9b7ed02b8832423, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seed_: 15
   noiseProfile_: {fileID: 11400000, guid: fef452147f95d4d43879f7dca4d89554, type: 2}
   featureProfile_: {fileID: 11400000, guid: b9f83e3aceb6b1a40a2e889c2538991e, type: 2}
   size_: {x: 32, y: 32, z: 32}
   threshold_: 0.5
   step_: 1
   material_: {fileID: 2100000, guid: 65d404716f0747945b3636716370031b, type: 2}
-  worldSize_: {x: 5, y: 5, z: 5}
+  worldSize_: {x: 3, y: 1, z: 3}
 --- !u!4 &350823004
 Transform:
   m_ObjectHideFlags: 0
