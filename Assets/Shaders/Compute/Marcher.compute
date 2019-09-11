@@ -14,55 +14,17 @@ AppendStructuredBuffer<Triangle> triangles_;
 StructuredBuffer<float> points_;
 int3 size_;
 float threshold_;
-float iso_;
 float step_;
 
-float GetValue(int3 i)
+float4 GetPoint(int x, int y, int z)
 {
-	return points_[Flatten(size_, i)];
+	return float4(x, y, z, points_[Flatten(size_, int3(x, y, z))]);
 }
 
-float Interpolate(float a, float b)
+float3 Interpolate(float4 a, float4 b)
 {
-	float t = (iso_ - a) / (b - a);
-	return a + t * (b - a);
-}
-
-int Configure(int3 i)
-{
-	int config = 0;
-	if(GetValue(i) >= threshold_) config |= 1;
-	if(GetValue(i + int3(1, 0, 0)) >= threshold_) config |= 2;
-	if(GetValue(i + int3(1, 0, 1)) >= threshold_) config |= 4;
-	if(GetValue(i + int3(0, 0, 1)) >= threshold_) config |= 8;
-	if(GetValue(i + int3(0, 1, 0)) >= threshold_) config |= 16;
-	if(GetValue(i + int3(1, 1, 0)) >= threshold_) config |= 32;
-	if(GetValue(i + int3(1, 1, 1)) >= threshold_) config |= 64;
-	if(GetValue(i + int3(0, 1, 1)) >= threshold_) config |= 128;
-	return config;
-}
-
-float3 FindPoint(int tri, int3 i)
-{
-	float3 pos = i * step_;
-
-	switch(tri)
-	{
-	case 0: return pos + float3(1, 0, 0) * Interpolate(pos.x, GetValue(i + int3(1, 0, 0)));
-	case 1: return pos + float3(0, 0, 1) * Interpolate(pos.z, GetValue(i + int3(0, 0, 1))) + float3(step_, 0, 0);
-	case 2: return pos + float3(1, 0, 0) * Interpolate(pos.x, GetValue(i + int3(1, 0, 0))) + float3(0, 0, step_);
-	case 3: return pos + float3(0, 0, 1) * Interpolate(pos.z, GetValue(i + int3(0, 0, 1)));
-	case 4: return pos + float3(1, 0, 0) * Interpolate(pos.x, GetValue(i + int3(1, 0, 0))) + float3(0, step_, 0);
-	case 5: return pos + float3(0, 0, 1) * Interpolate(pos.z, GetValue(i + int3(0, 0, 1))) + float3(step_, 0, 0) + float3(0, step_, 0);
-	case 6: return pos + float3(1, 0, 0) * Interpolate(pos.x, GetValue(i + int3(1, 0, 0))) + float3(0, 0, step_) + float3(0, step_, 0);
-	case 7: return pos + float3(0, 0, 1) * Interpolate(pos.z, GetValue(i + int3(0, 0, 1))) + float3(0, step_, 0);
-	case 8: return pos + float3(0, 1, 0) * Interpolate(pos.x, GetValue(i + int3(0, 1, 0)));
-	case 9: return pos + float3(0, 1, 0) * Interpolate(pos.z, GetValue(i + int3(0, 1, 0))) + float3(step_, 0, 0);
-	case 10: return pos + float3(0, 1, 0) * Interpolate(pos.x, GetValue(i + int3(0, 1, 0))) + float3(step_, 0, 0) + float3(0, 0, step_);
-	case 11: return pos + float3(0, 1, 0) * Interpolate(pos.z, GetValue(i + int3(0, 1, 0))) + float3(0, 0, step_);
-	}
-
-	return float3(0, 0, 0);
+	float t = (threshold_ - a.w) / (b.w - a.w);
+	return a.xyz + t * (b.xyz - a.xyz);
 }
 
 [numthreads(NUM_THREADS, NUM_THREADS, NUM_THREADS)]
@@ -70,32 +32,39 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 {
 	if(id.x >= size_.x - 1u || id.y >= size_.y - 1u || id.z >= size_.z - 1u) return;
 
-	int config = Configure(id.xyz);
-	int tris[16u] = triTable[config];
+	float4 cube[8u] = {
+		GetPoint(id.x, id.y, id.z),
+		GetPoint(id.x + 1, id.y, id.z),
+		GetPoint(id.x + 1, id.y, id.z + 1),
+		GetPoint(id.x, id.y, id.z + 1),
+		GetPoint(id.x, id.y + 1, id.z),
+		GetPoint(id.x + 1, id.y + 1, id.z),
+		GetPoint(id.x + 1, id.y + 1, id.z + 1),
+		GetPoint(id.x, id.y + 1, id.z + 1)
+	};
 
-	float3 triPoints[3u];
-	uint index = 0u;
-
-	for(uint i = 0u; i < 16u; ++i)
+	int configuration = 0;
+	for(uint j = 0u; j < 8u; ++j)
 	{
-		if(tris[i] == -1) break;
-		triPoints[index] = FindPoint(tris[i], id.xyz);
+		if(cube[j].w >= threshold_)
+			configuration |= 1 << j;
+	}
 
-		if(index == 2u)
-		{
-			Triangle tri;
+	for(uint i = 0u; triangulation[configuration][i] != -1; i += 3u)
+	{
+		int a0 = cornerIndexAFromEdge[triangulation[configuration][i]];
+		int b0 = cornerIndexBFromEdge[triangulation[configuration][i]];
 
-			tri.a_ = triPoints[0u];
-			tri.b_ = triPoints[1u];
-			tri.c_ = triPoints[2u];
+		int a1 = cornerIndexAFromEdge[triangulation[configuration][i + 1u]];
+		int b1 = cornerIndexBFromEdge[triangulation[configuration][i + 1u]];
 
-			triangles_.Append(tri);
+		int a2 = cornerIndexAFromEdge[triangulation[configuration][i + 2u]];
+		int b2 = cornerIndexBFromEdge[triangulation[configuration][i + 2u]];
 
-			index = 0u;
-		}
-		else
-		{
-			index++;
-		}
+		Triangle t;
+		t.a_ = Interpolate(cube[a0], cube[b0]);
+		t.b_ = Interpolate(cube[a1], cube[b1]);
+		t.c_ = Interpolate(cube[a2], cube[b2]);
+		triangles_.Append(t);
 	}
 }

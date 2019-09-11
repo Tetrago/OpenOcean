@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4532f9639817a9e438b225829a9c35bf, type: 3}
   m_Name: build0_Noise
   m_EditorClassIdentifier: 
-  scale_: {x: 100, y: 100, z: 100}
+  scale_: {x: 50, y: 50, z: 50}
   octaves_: 3
   persistance_: 0.5
   lacunarity_: 2

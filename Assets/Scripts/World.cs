@@ -16,7 +16,6 @@ public class World : MonoBehaviour
     public float step_;
     public Material material_;
     public Vector3Int worldSize_;
-    public float iso_;
 
     private Noise noise_;
     private Marcher marcher_;
@@ -64,7 +63,7 @@ public class World : MonoBehaviour
     public void Build()
     {
         foreach(Chunk chunk in chunks_)
-            chunk.Build(marcher_, feature_, size_, iso_, threshold_, step_, featureProfile_);
+            chunk.Build(marcher_, feature_, size_, threshold_, step_, featureProfile_);
     }
 
     private void Update()
