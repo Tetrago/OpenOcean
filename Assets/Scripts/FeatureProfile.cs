@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
-[CreateAssetMenu(menuName = "OpenOcean/FeatureStack")]
-public class FeatureProfile : ScriptableObject
+[System.Serializable]
+public struct FeatureProfile
 {
     
 }

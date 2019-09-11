@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: PPP
   m_EditorClassIdentifier: 
   settings:
-  - {fileID: 114647079493304062}
---- !u!114 &114647079493304062
+  - {fileID: 114694762016299980}
+--- !u!114 &114694762016299980
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}
@@ -32,7 +32,7 @@ MonoBehaviour:
     value: 1
   intensity:
     overrideState: 1
-    value: 5
+    value: 1
   threshold:
     overrideState: 0
     value: 1

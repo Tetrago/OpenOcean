@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
-[CreateAssetMenu(menuName = "OpenOcean/NoiseProfile")]
-public class NoiseProfile : ScriptableObject
+[System.Serializable]
+public struct NoiseProfile
 {
     public Vector3 scale_;
     public int octaves_;
