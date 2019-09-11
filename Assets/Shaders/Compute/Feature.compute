@@ -8,62 +8,23 @@ StructuredBuffer<float> points_;
 int3 size_;
 float threshold_;
 
-struct Line
-{
-	int3 index_;
-	float height_;
-};
-
-AppendStructuredBuffer<Line> lines_;
-float lineCutoff_;
-
-Line MakeLine(int3 i, float height)
-{
-	Line l;
-	l.index_ = i;
-	l.height_ = height;
-	return l;
-}
+AppendStructuredBuffer<int3> tops_;
 
 float GetValue(int3 i)
 {
 	return points_[Flatten(size_, i)];
 }
 
-void FindLine(int3 i)
+void CheckTop(int3 i)
 {
-	if(GetValue(i) < threshold_) return;
+	if(i.y >= size_.y - 1) return;
 
-	float height = 0;
-
-	bool stacking = true;
-	for(int j = 0; stacking; ++j)
-	{
-		int3 newIndex = i + float3(0, 1, 0) * j;
-
-		if(newIndex.x >= size_.x || newIndex.y >= size_.y || newIndex.z >= size_.z)
-		{
-			stacking = false;
-		}
-		else
-		{
-			if(GetValue(newIndex) < threshold_)
-			{
-				height++;
-			}
-			else
-			{
-				stacking = false;
-			}
-		}
-	}
-
-	if(height >= lineCutoff_)
-		lines_.Append(MakeLine(i, height));
+	if(GetValue(i) >= threshold_ && GetValue(i + int3(0, 1, 0)) < threshold_)
+		tops_.Append(i);
 }
 
 [numthreads(NUM_THREADS, NUM_THREADS, NUM_THREADS)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
-	FindLine(id.xyz);
+	CheckTop(id.xyz);
 }

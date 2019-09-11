@@ -16,13 +16,14 @@ public class Marcher : MonoBehaviour
         kernel_ = shader_.FindKernel("CSMain");
     }
 
-    public Triangle[] Triangulate(Vector3Int size, float[] points, float threshold, float step)
+    public Triangle[] Triangulate(Vector3Int size, float[] points, float iso, float threshold, float step)
     {
         ComputeBuffer pointsBuffer = new ComputeBuffer(points.Length, sizeof(float));
         ComputeBuffer trianglesBuffer = new ComputeBuffer(size.x * size.y * size.z * 5, sizeof(float) * 3 * 3, ComputeBufferType.Append);
         ComputeBuffer countBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
 
         shader_.SetInts("size_", size.x, size.y, size.z);
+        shader_.SetFloat("iso_", iso);
         shader_.SetFloat("threshold_", threshold);
         shader_.SetFloat("step_", step);
 

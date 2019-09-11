@@ -16,6 +16,7 @@ public class World : MonoBehaviour
     public float step_;
     public Material material_;
     public Vector3Int worldSize_;
+    public float iso_;
 
     private Noise noise_;
     private Marcher marcher_;
@@ -30,6 +31,9 @@ public class World : MonoBehaviour
         noise_ = GetComponent<Noise>();
         marcher_ = GetComponent<Marcher>();
         feature_ = GetComponent<Feature>();
+
+        if(GetComponent<TerrainShaderAPI>())
+            GetComponent<TerrainShaderAPI>().Configure(size_);
     }
 
     private void Start()
@@ -60,7 +64,7 @@ public class World : MonoBehaviour
     public void Build()
     {
         foreach(Chunk chunk in chunks_)
-            chunk.Build(marcher_, feature_, size_, threshold_, step_, featureProfile_);
+            chunk.Build(marcher_, feature_, size_, iso_, threshold_, step_, featureProfile_);
     }
 
     private void Update()
@@ -74,21 +78,5 @@ public class World : MonoBehaviour
         size_.x -= size_.x % THREADS;
         size_.y -= size_.y % THREADS;
         size_.z -= size_.z % THREADS;
-    }
-
-    private void OnDrawGizmos()
-    {
-        if(chunks_ == null) return;
-        Gizmos.color = Color.green;
-
-        foreach(Chunk chunk in chunks_)
-        {
-            if(chunk.Features.lines_ == null) return;
-            
-            foreach(Feature.Line line in chunk.Features.lines_)
-            {
-                Debug.DrawLine(line.index_ + chunk.Position, line.index_ + chunk.Position + Vector3.up * line.height_);
-            }
-        }
     }
 }

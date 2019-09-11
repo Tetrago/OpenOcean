@@ -12,6 +12,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2538153f991040428c9d49dda7a6eb5, type: 3}
   m_Name: build0_Feature
   m_EditorClassIdentifier: 
-  lineCutoff_: 0.5
-  lineRandRange_: {x: 1, y: 5}
-  randMultiplier_: 0.2

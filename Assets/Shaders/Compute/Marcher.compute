@@ -14,6 +14,7 @@ AppendStructuredBuffer<Triangle> triangles_;
 StructuredBuffer<float> points_;
 int3 size_;
 float threshold_;
+float iso_;
 float step_;
 
 float GetValue(int3 i)
@@ -23,7 +24,7 @@ float GetValue(int3 i)
 
 float Interpolate(float a, float b)
 {
-	float t = (threshold_ - a) / (b - a);
+	float t = (iso_ - a) / (b - a);
 	return a + t * (b - a);
 }
 
