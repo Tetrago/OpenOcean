@@ -15,7 +15,7 @@ public struct GenerationProfile
     {
         public Type type_;
         public uint height_;
-        public int blendDist_;
+        public uint blendDist_;
 
         public NoiseProfile noiseProfile_;
     }

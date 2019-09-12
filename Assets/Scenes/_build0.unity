@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.4465782, g: 0.49641252, b: 0.5748167, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641258, b: 0.5748172, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -160,14 +160,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   generationProfile_:
     levels_:
-    - type_: 1
+    - type_: 2
       height_: 0
-      blendDist_: -1
+      blendDist_: 0
       noiseProfile_:
         scale_: {x: 50, y: 50, z: 50}
         octaves_: 3
         persistance_: 0.5
         lacunarity_: 2
+        multiplier_: 1
+        shaderParams_: {x: 0, y: 0, z: 0}
     - type_: 0
       height_: 10
       blendDist_: 4
@@ -176,6 +178,18 @@ MonoBehaviour:
         octaves_: 3
         persistance_: 0.5
         lacunarity_: 2
+        multiplier_: 1
+        shaderParams_: {x: 0, y: 0, z: 0}
+    - type_: 1
+      height_: 100
+      blendDist_: 20
+      noiseProfile_:
+        scale_: {x: 50, y: 50, z: 50}
+        octaves_: 3
+        persistance_: 0.5
+        lacunarity_: 2
+        multiplier_: 1
+        shaderParams_: {x: 6, y: 3, z: 0}
   size_: {x: 32, y: 32, z: 32}
   threshold_: 0.5
   step_: 1

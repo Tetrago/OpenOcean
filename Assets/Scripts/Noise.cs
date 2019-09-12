@@ -13,14 +13,14 @@ public class Noise : MonoBehaviour
         return new Vector2(-amplitude, amplitude);
     }
 
-    public float[] Generate(Vector3Int size, Vector3 pos, NoiseProfile profile, GenerationProfile.Type type)
+    public float[] Generate(Vector3Int size, Vector3 pos, NoiseProfile profile, GenerationProfile.Level level)
     {
-        switch(type)
+        switch(level.type_)
         {
             case GenerationProfile.Type.SimplexCaverns:
                 return SimplexCaverns(size, pos, profile);
             case GenerationProfile.Type.SimplexPlane:
-                return SimplexPlane(size, pos, profile);
+                return SimplexPlane(size, pos, profile, level.height_);
             case GenerationProfile.Type.Full:
                 return Full(size);
         }
@@ -35,17 +35,12 @@ public class Noise : MonoBehaviour
         ComputeBuffer buffer = new ComputeBuffer(size.x * size.y * size.z, sizeof(float));
 
         shader_.SetBuffer(kernel, "points_", buffer);
-        shader_.SetInts("size_", size.x, size.y, size.z);
-        shader_.SetFloats("offset_", pos.x, pos.y, pos.z);
-        shader_.SetFloats("scale_", profile.scale_.x, profile.scale_.y, profile.scale_.z);
-        shader_.SetInt("octaves_", profile.octaves_);
-        shader_.SetFloat("persistance_", profile.persistance_);
-        shader_.SetFloat("lacunarity_", profile.lacunarity_);
+        SetUniforms(size, pos, profile);
 
         Vector2 lerp = GetLerp(profile);
         shader_.SetFloats("lerp_", lerp.x, lerp.y);
 
-        shader_.Dispatch(kernel, size.x / World.THREADS, size.y / World.THREADS, size.x / World.THREADS);
+        shader_.Dispatch(kernel, size.x / World.THREADS, size.y / World.THREADS, size.z / World.THREADS);
 
         float[] points = new float[size.x * size.y * size.z];
         buffer.GetData(points);
@@ -55,24 +50,20 @@ public class Noise : MonoBehaviour
         return points;
     }
 
-    private float[] SimplexPlane(Vector3Int size, Vector3 pos, NoiseProfile profile)
+    private float[] SimplexPlane(Vector3Int size, Vector3 pos, NoiseProfile profile, float height)
     {
         int kernel = shader_.FindKernel("SimplexPlane");
         
         ComputeBuffer buffer = new ComputeBuffer(size.x * size.y * size.z, sizeof(float));
 
         shader_.SetBuffer(kernel, "points_", buffer);
-        shader_.SetInts("size_", size.x, size.y, size.z);
-        shader_.SetFloats("offset_", pos.x, pos.y, pos.z);
-        shader_.SetFloats("scale_", profile.scale_.x, profile.scale_.y, profile.scale_.z);
-        shader_.SetInt("octaves_", profile.octaves_);
-        shader_.SetFloat("persistance_", profile.persistance_);
-        shader_.SetFloat("lacunarity_", profile.lacunarity_);
+        SetUniforms(size, pos, profile);
+        shader_.SetFloat("floor_", height);
 
         Vector2 lerp = GetLerp(profile);
         shader_.SetFloats("lerp_", lerp.x, lerp.y);
 
-        shader_.Dispatch(kernel, size.x / World.THREADS, 1, size.x / World.THREADS);
+        shader_.Dispatch(kernel, size.x / World.THREADS, size.y / World.THREADS, size.z / World.THREADS);
 
         float[] points = new float[size.x * size.y * size.z];
         buffer.GetData(points);
@@ -88,5 +79,16 @@ public class Noise : MonoBehaviour
         for(uint i = 0u; i < points.Length; ++i)
             points[i] = 1.0f;
         return points;
+    }
+
+    private void SetUniforms(Vector3Int size, Vector3 pos, NoiseProfile profile)
+    {
+        shader_.SetInts("size_", size.x, size.y, size.z);
+        shader_.SetFloats("offset_", pos.x, pos.y, pos.z);
+        shader_.SetFloats("scale_", profile.scale_.x, profile.scale_.y, profile.scale_.z);
+        shader_.SetInt("octaves_", profile.octaves_);
+        shader_.SetFloat("persistance_", profile.persistance_);
+        shader_.SetFloat("lacunarity_", profile.lacunarity_);
+        shader_.SetFloat("multiplier_", profile.multiplier_);
     }
 }

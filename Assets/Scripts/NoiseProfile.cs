@@ -7,4 +7,6 @@ public struct NoiseProfile
     public int octaves_;
     public float persistance_;
     public float lacunarity_;
+    public float multiplier_;
+    public Vector3 shaderParams_;
 }

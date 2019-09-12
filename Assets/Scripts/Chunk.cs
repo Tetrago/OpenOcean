@@ -1,7 +1,22 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class Chunk
 {
+    public class Comparer : IComparer<GenerationProfile.Level>
+    {
+        public int Compare(GenerationProfile.Level a, GenerationProfile.Level b)
+        {
+            if(a.height_ > b.height_)
+                return 1;
+            else if(a.height_ < b.height_)
+                return -1;
+            else
+                return 0;
+        }
+    }
+
     private float[] points_;
     private Vector3 pos_;
     private Mesh mesh_;
@@ -30,14 +45,17 @@ public class Chunk
 
     private static float[] DetermineTerrain(Noise noise, Vector3Int size, GenerationProfile generation, Vector3 pos)
     {
+        GenerationProfile.Level[] levels = generation.levels_;
+        Array.Sort(generation.levels_, new Comparer());
+
         float[] final = new float[size.x * size.y * size.z];
 
-        for(uint i = 0u; i < generation.levels_.Length; ++i)
+        for(uint i = 0u; i < levels.Length; ++i)
         {
-            GenerationProfile.Level level = generation.levels_[i];
+            GenerationProfile.Level level = levels[i];
             float height = level.height_;
 
-            float[] points = noise.Generate(size, pos, level.noiseProfile_, generation.levels_[i].type_);
+            float[] points = noise.Generate(size, pos, level.noiseProfile_, level);
 
             for(float x = 0; x < size.x; ++x)
             {
@@ -48,7 +66,7 @@ public class Chunk
                         float delta = pos.y + y - height;
                         if(delta >= 0)
                         {
-                            float blendFactor = level.blendDist_ == -1 ? 1.0f : Mathf.InverseLerp(0, level.blendDist_, Mathf.Min(delta, level.blendDist_));
+                            float blendFactor = level.blendDist_ == 0 ? 1.0f : Mathf.InverseLerp(0, level.blendDist_, Mathf.Min(delta, level.blendDist_));
                             final[(int)(x + size.y * (y + size.x * z))] += points[(int)(x + size.y * (y + size.x * z))] * blendFactor - final[(int)(x + size.y * (y + size.x * z))] * blendFactor;
                         }
                     }
