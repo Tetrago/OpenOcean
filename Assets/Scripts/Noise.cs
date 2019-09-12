@@ -20,7 +20,20 @@ public class Noise : MonoBehaviour
         return new Vector2(-amplitude, amplitude);
     }
 
-    public float[] Generate(Vector3Int size, Vector3 pos, NoiseProfile profile)
+    public float[] Generate(Vector3Int size, Vector3 pos, NoiseProfile profile, GenerationProfile.Type type)
+    {
+        switch(type)
+        {
+            case GenerationProfile.Type.SimplexCaverns:
+                return SimplexCaverns(size, pos, profile);
+            case GenerationProfile.Type.Full:
+                return Full(size);
+        }
+
+        return new float[size.x * size.y * size.z];
+    }
+
+    private float[] SimplexCaverns(Vector3Int size, Vector3 pos, NoiseProfile profile)
     {
         ComputeBuffer buffer = new ComputeBuffer(size.x * size.y * size.z, sizeof(float));
 
@@ -42,6 +55,14 @@ public class Noise : MonoBehaviour
 
         buffer.Release();
 
+        return points;
+    }
+
+    private float[] Full(Vector3Int size)
+    {
+        float[] points = new float[size.x * size.y * size.z];
+        for(uint i = 0u; i < points.Length; ++i)
+            points[i] = 1.0f;
         return points;
     }
 }
