@@ -45,8 +45,12 @@ public class Chunk
                 {
                     for(float z = 0; z < size.z; ++z)
                     {
-                        float blendFactor = y < height ? 0.0f : 1.0f;
-                        final[(int)(x + size.y * (y + size.x * z))] = points[(int)(x + size.y * (y + size.x * z))] * blendFactor;
+                        float delta = pos.y + y - height;
+                        if(delta >= 0)
+                        {
+                            float blendFactor = level.blendDist_ == -1 ? 1.0f : Mathf.InverseLerp(0, level.blendDist_, Mathf.Min(delta, level.blendDist_));
+                            final[(int)(x + size.y * (y + size.x * z))] += points[(int)(x + size.y * (y + size.x * z))] * blendFactor - final[(int)(x + size.y * (y + size.x * z))] * blendFactor;
+                        }
                     }
                 }
             }

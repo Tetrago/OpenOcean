@@ -1,7 +1,10 @@
-﻿#pragma kernel CSMain
+﻿#pragma kernel SimplexCaverns
+#pragma kernel SimplexPlane
 
 #include "Util.compute"
-#include "Simplex.compute"
+#include "SimpleLib.compute"
+#include "Simplex2D.compute"
+#include "Simplex3D.compute"
 
 static const int NUM_THREADS = 8;
 
@@ -15,7 +18,7 @@ float lacunarity_;
 float2 lerp_;
 
 [numthreads(NUM_THREADS, NUM_THREADS, NUM_THREADS)]
-void CSMain(uint3 id : SV_DispatchThreadID)
+void SimplexCaverns(uint3 id : SV_DispatchThreadID)
 {
 	float amplitude = 1;
 	float frequency = 1;
@@ -25,8 +28,30 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 	for(uint i = 0u; i < octaves_; ++i)
 	{
 		float3 s = (id.xyz + offset_) / scale_ * frequency;
-		float value = snoise(s);
+		float value = snoise3d(s);
 		
+		height += value * amplitude;
+
+		amplitude *= persistance_;
+		frequency *= lacunarity_;
+	}
+
+	points_[Flatten(size_, id.xyz)] = InverseLerp(lerp_.x, lerp_.y, height);
+}
+
+[numthreads(NUM_THREADS, 1, NUM_THREADS)]
+void SimplexPlane(uint3 id : SV_DispatchThreadID)
+{
+	float amplitude = 1;
+	float frequency = 1;
+
+	float height = 0;
+
+	for(uint i = 0u; i < octaves_; ++i)
+	{
+		float3 s = (id.xz + offset_.xz) / scale_.xz * frequency;
+		float value = snoise2d(s);
+
 		height += value * amplitude;
 
 		amplitude *= persistance_;
