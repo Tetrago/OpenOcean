@@ -6,8 +6,7 @@ public struct NoiseProfile
     [System.Serializable]
     public struct Params
     {
-        public const uint NUM_PARAMS = 5u;
-        public float a_, b_, c_, d_, e_;
+        public float a_, b_, c_, d_;
     }
 
     public Vector3 scale_;

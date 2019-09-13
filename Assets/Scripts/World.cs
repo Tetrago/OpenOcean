@@ -24,7 +24,7 @@ public class World : MonoBehaviour
     private Marcher marcher_;
     private Feature feature_;
 
-    private Chunk[] chunks_;
+    private Chunk[,,] chunks_;
 
     private void Awake()
     {
@@ -41,7 +41,7 @@ public class World : MonoBehaviour
     private void Start()
     {
         ColliderManager.Init();
-        chunks_ = new Chunk[worldSize_.x * worldSize_.y * worldSize_.z];
+        chunks_ = new Chunk[worldSize_.x, worldSize_.y, worldSize_.z];
 
         Generate();
         Build();
@@ -49,15 +49,15 @@ public class World : MonoBehaviour
 
     public void Generate()
     {
-        for (int x = 0; x < worldSize_.x; ++x)
+        for(int x = 0; x < worldSize_.x; ++x)
         {
-            for (int y = 0; y < worldSize_.y; ++y)
+            for(int y = 0; y < worldSize_.y; ++y)
             {
-                for (int z = 0; z < worldSize_.z; ++z)
+                for(int z = 0; z < worldSize_.z; ++z)
                 {
                     Chunk chunk = new Chunk(transform.position + new Vector3(x * (size_.x - 1) * step_, y * (size_.y - 1) * step_, z * (size_.z - 1) * step_));
                     chunk.Generate(noise_, generationProfile_);
-                    chunks_[x + worldSize_.y * (y + worldSize_.x * z)] = chunk;
+                    chunks_[x, y, z] = chunk;
                 }
             }
         }
