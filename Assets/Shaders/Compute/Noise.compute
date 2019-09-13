@@ -5,6 +5,7 @@
 #include "Simplex.compute"
 
 static const int NUM_THREADS = 8;
+static const int NUM_PARAMS = 5;
 
 RWStructuredBuffer<float> points_;
 int3 size_;
@@ -14,9 +15,9 @@ uint octaves_;
 float persistance_;
 float lacunarity_;
 float2 lerp_;
-float multiplier_;
 float floor_;
 float3 sampleOffset_;
+float params_[NUM_PARAMS];
 
 [numthreads(NUM_THREADS, NUM_THREADS, NUM_THREADS)]
 void SimplexCaverns(uint3 id : SV_DispatchThreadID)
@@ -37,25 +38,39 @@ void SimplexCaverns(uint3 id : SV_DispatchThreadID)
 		frequency *= lacunarity_;
 	}
 
-	points_[Flatten(size_, id)] = InverseLerp(lerp_.x, lerp_.y, height) * multiplier_;
+	points_[Flatten(size_, id)] = InverseLerp(lerp_.x, lerp_.y, height);
 }
 
 [numthreads(NUM_THREADS, NUM_THREADS, NUM_THREADS)]
 void SimplexPlane(uint3 id : SV_DispatchThreadID)
 {
+	// Params { .a_ = noiseWeight, .b_ = floorWeight, .c_ = weightMultiplier .d_ = terraceHeight .e_ = terraceMultiplier }
+
 	float amplitude = 1;
 	float frequency = 1;
+	float weight = 1;
 
-	float density = -id.y + floor_;
+	float density = 0;
 
 	for(uint i = 0u; i < octaves_; ++i)
 	{
-		float3 s = (id + offset_ + sampleOffset_) / scale_ * frequency;
-		density += snoise(s).x;
+		float n = snoise((offset_ + id + sampleOffset_) / scale_ * frequency);
+		float v = 1 - abs(n);
+
+		v = v * v;
+		v *= weight;
+		weight = min(max(v * params_[2u], 1), 0);
+		density += v * amplitude;
 
 		amplitude *= persistance_;
 		frequency *= lacunarity_;
 	}
 
-	points_[Flatten(size_, id)] = density;
+	float final = -((offset_ + id).y + floor_) + density * params_[0u] + ((offset_ + id).y % params_[3u]) * params_[4u];
+	if(final < floor_)
+	{
+		final += params_[1u];
+	}
+
+	points_[Flatten(size_, id)] = final;
 }

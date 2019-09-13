@@ -9,8 +9,11 @@ public class World : MonoBehaviour
 
     public const int THREADS = 8;
 
+    [Header("Chunk Generation")]
     public GenerationProfile generationProfile_;
-    public FeatureProfile featureProfile_;
+    [HideInInspector] public FeatureProfile featureProfile_;
+
+    [Header("World Generation")]
     public Vector3Int size_;
     [Range(-1, 1)] public float threshold_;
     public float step_;
