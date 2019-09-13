@@ -90,5 +90,6 @@ public class Noise : MonoBehaviour
         shader_.SetFloat("persistance_", profile.persistance_);
         shader_.SetFloat("lacunarity_", profile.lacunarity_);
         shader_.SetFloat("multiplier_", profile.multiplier_);
+        shader_.SetFloats("sampleOffset_", profile.sampleOffset_.x, profile.sampleOffset_.y, profile.sampleOffset_.z);
     }
 }

@@ -8,5 +8,5 @@ public struct NoiseProfile
     public float persistance_;
     public float lacunarity_;
     public float multiplier_;
-    public Vector3 shaderParams_;
+    public Vector3 sampleOffset_;
 }

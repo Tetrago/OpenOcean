@@ -3,7 +3,6 @@
 
 #include "Util.compute"
 #include "Simplex.compute"
-#include "Simplex2D.compute"
 
 static const int NUM_THREADS = 8;
 
@@ -17,6 +16,7 @@ float lacunarity_;
 float2 lerp_;
 float multiplier_;
 float floor_;
+float3 sampleOffset_;
 
 [numthreads(NUM_THREADS, NUM_THREADS, NUM_THREADS)]
 void SimplexCaverns(uint3 id : SV_DispatchThreadID)
@@ -28,7 +28,7 @@ void SimplexCaverns(uint3 id : SV_DispatchThreadID)
 
 	for(uint i = 0u; i < octaves_; ++i)
 	{
-		float3 s = (id + offset_) / scale_ * frequency;
+		float3 s = (id + offset_ + sampleOffset_) / scale_ * frequency;
 		float value = snoise(s);
 		
 		height += value * amplitude;
@@ -46,18 +46,16 @@ void SimplexPlane(uint3 id : SV_DispatchThreadID)
 	float amplitude = 1;
 	float frequency = 1;
 
-	float height = 0;
+	float density = -id.y + floor_;
 
 	for(uint i = 0u; i < octaves_; ++i)
 	{
-		float3 s = (id + offset_) / scale_ * frequency;
-		float value = snoise(s);
-
-		height += value * amplitude;
+		float3 s = (id + offset_ + sampleOffset_) / scale_ * frequency;
+		density += snoise(s).x;
 
 		amplitude *= persistance_;
 		frequency *= lacunarity_;
 	}
 
-	points_[Flatten(size_, id)] = InverseLerp(lerp_.x, lerp_.y, height) * multiplier_;
+	points_[Flatten(size_, id)] = density;
 }

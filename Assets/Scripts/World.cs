@@ -52,7 +52,7 @@ public class World : MonoBehaviour
             {
                 for (int z = 0; z < worldSize_.z; ++z)
                 {
-                    Chunk chunk = new Chunk(new Vector3(x * (size_.x - 1) * step_, y * (size_.y - 1) * step_, z * (size_.z - 1) * step_));
+                    Chunk chunk = new Chunk(transform.position + new Vector3(x * (size_.x - 1) * step_, y * (size_.y - 1) * step_, z * (size_.z - 1) * step_));
                     chunk.Generate(noise_, generationProfile_);
                     chunks_[x + worldSize_.y * (y + worldSize_.x * z)] = chunk;
                 }
