@@ -1,11 +1,9 @@
-﻿#pragma kernel SimplexCaverns
-#pragma kernel SimplexPlane
+﻿#pragma kernel CSMain
 
 #include "Util.compute"
 #include "Simplex.compute"
 
 static const int NUM_THREADS = 8;
-static const int NUM_PARAMS = 5;
 
 RWStructuredBuffer<float> points_;
 int3 size_;
@@ -16,61 +14,81 @@ float persistance_;
 float lacunarity_;
 float2 lerp_;
 float floor_;
+float roof_;
 float3 sampleOffset_;
-float4 params_;
+float noiseWeight_;
+float floorWeight_;
+float weightMultiplier_;
+float blendDist_;
 
-[numthreads(NUM_THREADS, NUM_THREADS, NUM_THREADS)]
-void SimplexCaverns(uint3 id : SV_DispatchThreadID)
+float Plane(uint3 id)
 {
-	float amplitude = 1;
-	float frequency = 1;
-
-	float height = 0;
-
-	for(uint i = 0u; i < octaves_; ++i)
-	{
-		float3 s = (id + offset_ + sampleOffset_) / scale_ * frequency;
-		float value = snoise(s);
-		
-		height += value * amplitude;
-
-		amplitude *= persistance_;
-		frequency *= lacunarity_;
-	}
-
-	points_[Flatten(size_, id)] = InverseLerp(lerp_.x, lerp_.y, height);
-}
-
-[numthreads(NUM_THREADS, NUM_THREADS, NUM_THREADS)]
-void SimplexPlane(uint3 id : SV_DispatchThreadID)
-{
-	// Params { .a_ = noiseWeight, .b_ = floorWeight, .c_ = weightMultiplier }
-
 	float amplitude = 1;
 	float frequency = 1;
 	float weight = 1;
 
 	float density = 0;
 
-	for(uint i = 0u; i < octaves_; ++i)
+	for (uint i = 0u; i < octaves_; ++i)
 	{
 		float n = snoise((offset_ + id + sampleOffset_) / scale_ * frequency);
 		float v = 1 - abs(n);
 
 		v = v * v;
 		v *= weight;
-		weight = min(max(v * params_.z, 1), 0);
+		weight = min(max(v * weightMultiplier_, 1), 0);
 		density += v * amplitude;
 
 		amplitude *= persistance_;
 		frequency *= lacunarity_;
 	}
 
-	float final = -((offset_ + id).y - floor_) + density * params_.x;
-	if(final < floor_)
+	float final = -((offset_ + id).y - roof_) + density * noiseWeight_;
+	if (final < roof_)
 	{
-		final += params_.y;
+		final += floorWeight_;
 	}
 
-	points_[Flatten(size_, id)] = final;
+	return final;
+}
+
+float Cavern(uint3 id)
+{
+	float amplitude = 1;
+	float frequency = 1;
+
+	float height = 0;
+
+	for (uint i = 0u; i < octaves_; ++i)
+	{
+		float3 s = (offset_ + id + sampleOffset_) / scale_ * frequency;
+		float value = snoise(s);
+
+		height += value * amplitude;
+
+		amplitude *= persistance_;
+		frequency *= lacunarity_;
+	}
+
+	return InverseLerp(lerp_.x, lerp_.y, height);
+}
+
+[numthreads(NUM_THREADS, NUM_THREADS, NUM_THREADS)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+	float value = 1.0;
+
+	if(offset_.y + id.y >= floor_)
+	{
+		value = Cavern(id);
+	}
+
+	if(offset_.y + id.y >= roof_)
+	{
+		float d = roof_ + blendDist_ - (offset_.y + id.y);
+		float delta = d < 0 ? 1.0 : (d - blendDist_) / blendDist_;
+		value = Plane(id) * delta + value * (1.0 - delta);
+	}
+
+	points_[Flatten(size_, id)] = value;
 }

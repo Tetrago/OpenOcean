@@ -10,7 +10,7 @@ public class World : MonoBehaviour
     public const int THREADS = 8;
 
     [Header("Chunk Generation")]
-    public GenerationProfile generationProfile_;
+    public NoiseProfile noiseProfile_;
     [HideInInspector] public FeatureProfile featureProfile_;
 
     [Header("World Generation")]
@@ -56,7 +56,7 @@ public class World : MonoBehaviour
                 for(int z = 0; z < worldSize_.z; ++z)
                 {
                     Chunk chunk = new Chunk(transform.position + new Vector3(x * (size_.x - 1) * step_, y * (size_.y - 1) * step_, z * (size_.z - 1) * step_));
-                    chunk.Generate(noise_, generationProfile_);
+                    chunk.Generate(noise_, noiseProfile_);
                     chunks_[x, y, z] = chunk;
                 }
             }

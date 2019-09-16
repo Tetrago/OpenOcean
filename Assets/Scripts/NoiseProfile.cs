@@ -3,16 +3,15 @@
 [System.Serializable]
 public struct NoiseProfile
 {
-    [System.Serializable]
-    public struct Params
-    {
-        public float a_, b_, c_, d_;
-    }
-
     public Vector3 scale_;
     public int octaves_;
     public float persistance_;
     public float lacunarity_;
     public Vector3 sampleOffset_;
-    public Params params_;
+    public float floor_;
+    public float roof_;
+    public float noiseWeight_;
+    public float floorWeight_;
+    public float weightMultiplier_;
+    public float blendDist_;
 }
