@@ -15,7 +15,7 @@ public class WorldEditor : Editor
     {
         base.OnInspectorGUI();
 
-        if(Application.isPlaying && GUILayout.Button("Refresh"))
+        if(Application.isPlaying && GUILayout.Button("Rebuild"))
         {
             obj_.Generate();
             obj_.Build();

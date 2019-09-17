@@ -14,17 +14,21 @@ public class World : MonoBehaviour
     [HideInInspector] public FeatureProfile featureProfile_;
 
     [Header("World Generation")]
-    public Vector3Int size_;
     [Range(-1, 1)] public float threshold_;
     public float step_;
     public Material material_;
-    public Vector3Int worldSize_;
+    public Vector3Int size_;
+
+    [Header("Chunk Organization")]
+    public ChunkOrganizer.Type type_;
+    public StaticChunkOrganizer.Settings staticSettings_;
 
     private Noise noise_;
     private Marcher marcher_;
     private Feature feature_;
 
     private Chunk[,,] chunks_;
+    private ChunkOrganizer organizer_;
 
     private void Awake()
     {
@@ -36,12 +40,21 @@ public class World : MonoBehaviour
 
         if(GetComponent<TerrainShaderAPI>())
             GetComponent<TerrainShaderAPI>().Configure(size_);
+
+        switch(type_)
+        {
+            case ChunkOrganizer.Type.Static:
+                organizer_ = new StaticChunkOrganizer();
+                break;
+            case ChunkOrganizer.Type.Dynamic:
+                break;
+        }
     }
 
     private void Start()
     {
         ColliderManager.Init();
-        chunks_ = new Chunk[worldSize_.x, worldSize_.y, worldSize_.z];
+        chunks_ = new Chunk[staticSettings_.worldSize_.x, staticSettings_.worldSize_.y, staticSettings_.worldSize_.z];
 
         Generate();
         Build();
@@ -49,24 +62,12 @@ public class World : MonoBehaviour
 
     public void Generate()
     {
-        for(int x = 0; x < worldSize_.x; ++x)
-        {
-            for(int y = 0; y < worldSize_.y; ++y)
-            {
-                for(int z = 0; z < worldSize_.z; ++z)
-                {
-                    Chunk chunk = new Chunk(transform.position + new Vector3(x * (size_.x - 1) * step_, y * (size_.y - 1) * step_, z * (size_.z - 1) * step_));
-                    chunk.Generate(noise_, noiseProfile_);
-                    chunks_[x, y, z] = chunk;
-                }
-            }
-        }
+        organizer_.Generate(ref chunks_, noise_, transform.position);
     }
 
     public void Build()
     {
-        foreach(Chunk chunk in chunks_)
-            chunk.Build(marcher_, feature_, size_, threshold_, step_, featureProfile_);
+        organizer_.Build(ref chunks_, marcher_, feature_);
     }
 
     private void Update()

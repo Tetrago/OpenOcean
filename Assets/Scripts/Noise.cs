@@ -32,7 +32,7 @@ public class Noise : MonoBehaviour
         shader_.SetFloat("noiseWeight_", profile.noiseWeight_);
         shader_.SetFloat("floorWeight_", profile.floorWeight_);
         shader_.SetFloat("weightMultiplier_", profile.weightMultiplier_);
-        shader_.SetFloat("blendDist_", profile.blendDist_);
+        shader_.SetVector("blend_", profile.blend_);
 
         Vector2 lerp = GetLerp(profile);
         shader_.SetFloats("lerp_", lerp.x, lerp.y);

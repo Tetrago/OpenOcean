@@ -13,5 +13,5 @@ public struct NoiseProfile
     public float noiseWeight_;
     public float floorWeight_;
     public float weightMultiplier_;
-    public float blendDist_;
+    public Vector2 blend_;
 }

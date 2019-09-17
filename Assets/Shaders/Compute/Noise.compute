@@ -19,7 +19,7 @@ float3 sampleOffset_;
 float noiseWeight_;
 float floorWeight_;
 float weightMultiplier_;
-float blendDist_;
+float2 blend_;
 
 float Plane(uint3 id)
 {
@@ -83,10 +83,10 @@ void CSMain(uint3 id : SV_DispatchThreadID)
 		value = Cavern(id);
 	}
 
-	if(offset_.y + id.y >= roof_)
+	if(offset_.y + id.y >= roof_ - blend_.x)
 	{
-		float d = roof_ + blendDist_ - (offset_.y + id.y);
-		float delta = d < 0 ? 1.0 : (d - blendDist_) / blendDist_;
+		float d = roof_ + blend_.y + blend_.x - (offset_.y + id.y);
+		float delta = d < 0 ? 1.0 : (d - blend_.x - blend_.y) / (blend_.y + blend_.x);
 		value = Plane(id) * delta + value * (1.0 - delta);
 	}
 
