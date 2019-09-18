@@ -19,7 +19,7 @@ namespace Submarine
         private void Update()
         {
             if(currentSpeed_ != targetSpeed_)
-                currentSpeed_ = Mathf.SmoothDamp(currentSpeed_, targetSpeed_, ref velocity_, smoothSpeed_);
+                currentSpeed_ = Mathf.SmoothDamp(currentSpeed_, targetSpeed_, ref velocity_, smoothSpeed_, targetSpeed_, Time.deltaTime);
 
             Vector3 rot = propeller_.rotation.eulerAngles;
             propeller_.rotation = Quaternion.RotateTowards(propeller_.rotation, Quaternion.Euler(rot + Vector3.forward * currentSpeed_), currentSpeed_ * Time.deltaTime);
