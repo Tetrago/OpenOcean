@@ -22,12 +22,12 @@ public class World : MonoBehaviour
     [Header("Chunk Organization")]
     public ChunkOrganizer.Type type_;
     public StaticChunkOrganizer.Settings staticSettings_;
+    public DynamicChunkOrganizer.Settings dynamicSettings_;
 
     private Noise noise_;
     private Marcher marcher_;
     private Feature feature_;
 
-    private Chunk[,,] chunks_;
     private ChunkOrganizer organizer_;
 
     private void Awake()
@@ -44,9 +44,10 @@ public class World : MonoBehaviour
         switch(type_)
         {
             case ChunkOrganizer.Type.Static:
-                organizer_ = new StaticChunkOrganizer();
+                organizer_ = new StaticChunkOrganizer(staticSettings_);
                 break;
             case ChunkOrganizer.Type.Dynamic:
+                organizer_ = new DynamicChunkOrganizer(dynamicSettings_);
                 break;
         }
     }
@@ -54,7 +55,7 @@ public class World : MonoBehaviour
     private void Start()
     {
         ColliderManager.Init();
-        chunks_ = new Chunk[staticSettings_.worldSize_.x, staticSettings_.worldSize_.y, staticSettings_.worldSize_.z];
+        organizer_.Allocate();
 
         Generate();
         Build();
@@ -62,18 +63,17 @@ public class World : MonoBehaviour
 
     public void Generate()
     {
-        organizer_.Generate(ref chunks_, noise_, transform.position);
+        organizer_.Generate(noise_, transform.position);
     }
 
     public void Build()
     {
-        organizer_.Build(ref chunks_, marcher_, feature_);
+        organizer_.Build(marcher_, feature_);
     }
 
     private void Update()
     {
-        foreach(Chunk chunk in chunks_)
-            Graphics.DrawMesh(chunk.Mesh, chunk.Position, Quaternion.identity, material_, 0);
+        organizer_.Draw(material_);
     }
 
     private void OnValidate()

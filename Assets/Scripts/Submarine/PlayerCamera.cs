@@ -16,11 +16,15 @@ class PlayerCamera : MonoBehaviour
     private Vector3 lastMousePos_;
     private Vector3 rot_;
     private Vector3 lastHitPoint_;
+    private bool moveCamera_;
 
     private void Awake()
     {
         pivot_ = new GameObject("Pivot");
         transform.parent = pivot_.transform;
+
+        moveCamera_ = true;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void Update()
@@ -30,7 +34,7 @@ class PlayerCamera : MonoBehaviour
 
     private void LateUpdate()
     {
-        if(Input.GetMouseButton(2))
+        if(moveCamera_)
         {
             rot_.x += Input.GetAxis("Mouse X") * sensitivity_;
             rot_.y += Input.GetAxis("Mouse Y") * -sensitivity_;
