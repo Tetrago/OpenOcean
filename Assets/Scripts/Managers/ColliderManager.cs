@@ -19,6 +19,12 @@ public static class ColliderManager
         colliders_[chunk].sharedMesh = chunk.Mesh;
     }
 
+    public static void Destroy(Chunk chunk)
+    {
+        if(colliders_.ContainsKey(chunk))
+            colliders_.Remove(chunk);
+    }
+
     private static MeshCollider Create(Vector3 pos)
     {
         GameObject go = new GameObject(pos.ToString());

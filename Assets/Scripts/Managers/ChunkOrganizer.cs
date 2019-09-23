@@ -12,4 +12,6 @@ public abstract class ChunkOrganizer
     public abstract void Generate(Noise noise, Vector3 origin);
     public abstract void Build(Marcher marcher, Feature feature);
     public abstract void Draw(Material material);
+
+    public virtual void Update(Noise noise, Marcher marcher, Feature feature) {}
 }

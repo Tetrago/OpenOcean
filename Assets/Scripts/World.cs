@@ -73,6 +73,7 @@ public class World : MonoBehaviour
 
     private void Update()
     {
+        organizer_.Update(noise_, marcher_, feature_);
         organizer_.Draw(material_);
     }
 
