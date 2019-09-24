@@ -22,7 +22,10 @@ public static class ColliderManager
     public static void Destroy(Chunk chunk)
     {
         if(colliders_.ContainsKey(chunk))
+        {
+            GameObject.Destroy(colliders_[chunk].gameObject);
             colliders_.Remove(chunk);
+        }
     }
 
     private static MeshCollider Create(Vector3 pos)

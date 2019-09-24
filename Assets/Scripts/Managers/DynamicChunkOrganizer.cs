@@ -12,22 +12,27 @@ public class DynamicChunkOrganizer : ChunkOrganizer
     }
 
     private Dictionary<Vector3, Chunk> chunks_;
+    private List<Chunk> ungeneratedChunks_;
+    private List<Chunk> unbuiltChunks_;
     private Settings settings_;
     private float lastUpdate_;
 
     public DynamicChunkOrganizer(Settings settings)
     {
-        settings_ = settings;
         chunks_ = new Dictionary<Vector3, Chunk>();
+        ungeneratedChunks_ = new List<Chunk>();
+        unbuiltChunks_ = new List<Chunk>();
+        settings_ = settings;
         lastUpdate_ = Time.time;
     }
 
     public override void Allocate()
     {
         Vector3 sub = settings_.submarine_.transform.position;
-        sub.x -= sub.x % World.instance_.size_.x;
-        sub.y -= sub.y % World.instance_.size_.y;
-        sub.z -= sub.z % World.instance_.size_.z;
+        sub.x /= Mathf.Ceil(World.instance_.size_.x);
+        sub.y /= Mathf.Ceil(World.instance_.size_.y);
+        sub.z /= Mathf.Ceil(World.instance_.size_.z);
+        sub = Vector3.Scale(sub, World.instance_.size_);
 
         for(float x = -settings_.viewDist_; x < settings_.viewDist_; ++x)
         {
@@ -36,34 +41,49 @@ public class DynamicChunkOrganizer : ChunkOrganizer
                 for(float z = -settings_.viewDist_; z < settings_.viewDist_; ++z)
                 {
                     Vector3 pos = sub + Vector3.Scale(new Vector3(x, y, z), new Vector3(World.instance_.size_.x - 1, World.instance_.size_.y - 1, World.instance_.size_.z - 1));
-                    if(Vector3.Distance(settings_.submarine_.transform.position, pos) < settings_.viewDist_ * World.instance_.size_.magnitude && !chunks_.ContainsKey(pos))
-                    {
-                        chunks_.Add(pos, new Chunk(pos));
-                    }
+                    if(!chunks_.ContainsKey(pos) && Vector3.Distance(settings_.submarine_.transform.position, pos) < settings_.viewDist_ * World.instance_.size_.magnitude)
+                        Create(pos);
                 }
             }
         }
     }
 
+    private void Create(Vector3 pos)
+    {
+        Chunk chunk = new Chunk(pos);
+
+        chunks_.Add(pos, chunk);
+        ungeneratedChunks_.Add(chunk);
+        unbuiltChunks_.Add(chunk);
+    }
+
     public override void Generate(Noise noise, Vector3 origin)
     {
-        List<Chunk> chunks = GetChunks(settings_.submarine_.transform.position);
-        foreach(Chunk chunk in chunks)
+        List<Chunk> chunks = new List<Chunk>(ungeneratedChunks_);
+        chunks.ForEach((Chunk chunk) =>
+        {
             chunk.Generate(noise, World.instance_.noiseProfile_);
+            ungeneratedChunks_.Remove(chunk);
+        });
     }
 
     public override void Build(Marcher marcher, Feature feature)
     {
-        List<Chunk> chunks = GetChunks(settings_.submarine_.transform.position);
-        foreach(Chunk chunk in chunks)
+        List<Chunk> chunks = new List<Chunk>(unbuiltChunks_);
+        chunks.ForEach((Chunk chunk) =>
+        {
             chunk.Build(marcher, feature, World.instance_.size_, World.instance_.threshold_, World.instance_.step_, World.instance_.featureProfile_);
+            unbuiltChunks_.Remove(chunk);
+        });
     }
 
     public override void Draw(Material material)
     {
-        List<Chunk> chunks = GetChunks(settings_.submarine_.transform.position);
-        foreach(Chunk chunk in chunks)
-            Graphics.DrawMesh(chunk.Mesh, chunk.Position, Quaternion.identity, material, 0);
+        foreach(Chunk chunk in chunks_.Values)
+        {
+            if(Vector3.Distance(chunk.Position, settings_.submarine_.transform.position) < settings_.viewDist_ * World.instance_.size_.magnitude)
+                Graphics.DrawMesh(chunk.Mesh, chunk.Position, Quaternion.identity, material, 0);
+        }
     }
 
     public override void Update(Noise noise, Marcher marcher, Feature feature)
@@ -73,7 +93,7 @@ public class DynamicChunkOrganizer : ChunkOrganizer
         if(Time.time - lastUpdate_ >= settings_.updateTime_)
         {
             Allocate();
-            Clean(settings_.submarine_.transform.position);
+            Clean();
 
             Generate(noise, Vector3.zero);
             Build(marcher, feature);
@@ -82,27 +102,16 @@ public class DynamicChunkOrganizer : ChunkOrganizer
         }
     }
 
-    private List<Chunk> GetChunks(Vector3 position)
+    private void Clean()
     {
-        List<Chunk> chunks = new List<Chunk>();
+        Dictionary<Vector3, Chunk> chunks = new Dictionary<Vector3, Chunk>(chunks_);
 
-        foreach(Chunk chunk in chunks_.Values)
+        foreach(Chunk chunk in chunks.Values)
         {
-            if(Vector3.Distance(chunk.Position, position) < settings_.viewDist_ * World.instance_.size_.magnitude)
-                chunks.Add(chunk);
-        }
-
-        return chunks;
-    }
-
-    private void Clean(Vector3 position)
-    {
-        foreach(var item in new Dictionary<Vector3, Chunk>(chunks_))
-        {
-            if(Vector3.Distance(item.Value.Position, position) >= settings_.viewDist_)
+            if(Vector3.Distance(chunk.Position, settings_.submarine_.transform.position) >= settings_.viewDist_ * World.instance_.size_.magnitude)
             {
-                ColliderManager.Destroy(item.Value);
-                chunks_.Remove(item.Key);
+                ColliderManager.Destroy(chunk);
+                chunks_.Remove(chunk.Position);
             }
         }
     }

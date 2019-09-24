@@ -11,6 +11,7 @@ namespace Submarine
         public float pitchTorque_;
         public float yawTorque_;
         public float rollTorque_;
+        public float softCeiling_;
 
         private Propeller prop_;
         private Rigidbody rb_;
@@ -31,9 +32,9 @@ namespace Submarine
         {
             float forward = Input.GetAxisRaw("Speed");
 
-            if(forward > 0)
+            if(forward > 0 && Valid(transform.forward))
                 rb_.AddForce(transform.forward * acceleration_.x);
-            else if(forward < 0)
+            else if(forward < 0 && Valid(-transform.forward))
                 rb_.AddForce(-transform.forward * acceleration_.y);
 
             Vector3 currentForward = Vector3.Scale(rb_.velocity, transform.forward);
@@ -47,6 +48,11 @@ namespace Submarine
             float roll = Input.GetAxisRaw("Rotation");
 
             rb_.AddTorque(transform.right * pitchTorque_ * pitch + transform.up * yawTorque_ * yaw + transform.forward * rollTorque_ * roll);
+        }
+
+        private bool Valid(Vector3 direction)
+        {
+            return transform.position.y < softCeiling_ || (direction + transform.position).y < transform.position.y;
         }
     }
 }

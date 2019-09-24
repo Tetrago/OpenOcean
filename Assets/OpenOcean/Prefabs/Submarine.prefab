@@ -4991,6 +4991,7 @@ MonoBehaviour:
   pitchTorque_: 5
   yawTorque_: 5
   rollTorque_: 4
+  softCeiling_: 150
 --- !u!54 &8959762972204628139
 Rigidbody:
   m_ObjectHideFlags: 0

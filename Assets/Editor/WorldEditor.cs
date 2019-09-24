@@ -15,10 +15,13 @@ public class WorldEditor : Editor
     {
         base.OnInspectorGUI();
 
-        if(Application.isPlaying && GUILayout.Button("Rebuild"))
+        if(Application.isPlaying)
         {
-            obj_.Generate();
-            obj_.Build();
+            if(GUILayout.Button("Rebuild"))
+            {
+                obj_.Generate();
+                obj_.Build();
+            }
         }
     }
 }
