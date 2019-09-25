@@ -36,6 +36,7 @@
 			o.Albedo = Hue(IN.worldPos.y / 360) * _Dim;
 			o.Metallic = 0;
 			o.Smoothness = 0;
+			// o.Emission = half3(1, 1, 1) * sin(_Time * 50);
         }
 
         ENDCG

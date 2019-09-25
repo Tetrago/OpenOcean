@@ -29,9 +29,9 @@ public class DynamicChunkOrganizer : ChunkOrganizer
     public override void Allocate()
     {
         Vector3 sub = settings_.submarine_.transform.position;
-        sub.x /= Mathf.Ceil(World.instance_.size_.x);
-        sub.y /= Mathf.Ceil(World.instance_.size_.y);
-        sub.z /= Mathf.Ceil(World.instance_.size_.z);
+        sub.x = Mathf.Ceil(sub.x / World.instance_.size_.x);
+        sub.y = Mathf.Ceil(sub.y / World.instance_.size_.y);
+        sub.z = Mathf.Ceil(sub.z / World.instance_.size_.z);
         sub = Vector3.Scale(sub, World.instance_.size_);
 
         for(float x = -settings_.viewDist_; x < settings_.viewDist_; ++x)

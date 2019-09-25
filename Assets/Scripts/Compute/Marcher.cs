@@ -11,6 +11,11 @@ public class Marcher : MonoBehaviour
         public Vector3 a_, b_, c_;
     }
 
+    public static void Init()
+    {
+
+    }
+
     private void Awake()
     {
         kernel_ = shader_.FindKernel("CSMain");
