@@ -104,15 +104,14 @@ public class DynamicChunkOrganizer : ChunkOrganizer
 
     private void Clean()
     {
-        Dictionary<Vector3, Chunk> chunks = new Dictionary<Vector3, Chunk>(chunks_);
-
-        foreach(Chunk chunk in chunks.Values)
+        List<Chunk> chunks = new List<Chunk>(chunks_.Values);
+        chunks.ForEach((Chunk chunk) =>
         {
             if(Vector3.Distance(chunk.Position, settings_.submarine_.transform.position) >= settings_.viewDist_ * World.instance_.size_.magnitude)
             {
                 ColliderManager.Destroy(chunk);
                 chunks_.Remove(chunk.Position);
             }
-        }
+        });
     }
 }

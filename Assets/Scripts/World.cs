@@ -83,4 +83,8 @@ public class World : MonoBehaviour
         size_.y -= size_.y % THREADS;
         size_.z -= size_.z % THREADS;
     }
+
+    public Feature Feature => feature_;
+    public Marcher Marcher => marcher_;
+    public Noise Noise => noise_;
 }
