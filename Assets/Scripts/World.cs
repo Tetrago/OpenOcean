@@ -1,8 +1,5 @@
 ﻿using UnityEngine;
 
-[RequireComponent(typeof(Noise))]
-[RequireComponent(typeof(Marcher))]
-[RequireComponent(typeof(Feature))]
 public class World : MonoBehaviour
 {
     public static World instance_;
@@ -24,19 +21,11 @@ public class World : MonoBehaviour
     public StaticChunkOrganizer.Settings staticSettings_;
     public DynamicChunkOrganizer.Settings dynamicSettings_;
 
-    private Noise noise_;
-    private Marcher marcher_;
-    private Feature feature_;
-
     private ChunkOrganizer organizer_;
 
     private void Awake()
     {
         instance_ = this;
-
-        noise_ = GetComponent<Noise>();
-        marcher_ = GetComponent<Marcher>();
-        feature_ = GetComponent<Feature>();
 
         if(GetComponent<TerrainShaderAPI>())
             GetComponent<TerrainShaderAPI>().Configure(size_);
@@ -63,17 +52,16 @@ public class World : MonoBehaviour
 
     public void Generate()
     {
-        organizer_.Generate(noise_, transform.position);
+        organizer_.Generate(transform.position);
     }
 
     public void Build()
     {
-        organizer_.Build(marcher_, feature_);
+        organizer_.Build();
     }
 
     private void Update()
     {
-        organizer_.Update(noise_, marcher_, feature_);
         organizer_.Draw(material_);
     }
 
@@ -83,8 +71,4 @@ public class World : MonoBehaviour
         size_.y -= size_.y % THREADS;
         size_.z -= size_.z % THREADS;
     }
-
-    public Feature Feature => feature_;
-    public Marcher Marcher => marcher_;
-    public Noise Noise => noise_;
 }

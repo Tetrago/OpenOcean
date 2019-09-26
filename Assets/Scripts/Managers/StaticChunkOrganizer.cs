@@ -21,7 +21,7 @@ public class StaticChunkOrganizer : ChunkOrganizer
         chunks_ = new Chunk[settings_.worldSize_.x, settings_.worldSize_.y, settings_.worldSize_.z];
     }
 
-    public override void Generate(Noise noise, Vector3 origin)
+    public override void Generate(Vector3 origin)
     {
         Vector3Int worldSize = World.instance_.staticSettings_.worldSize_;
         Vector3Int size = World.instance_.size_;
@@ -34,22 +34,22 @@ public class StaticChunkOrganizer : ChunkOrganizer
                 for(int z = 0; z < worldSize.z; ++z)
                 {
                     Chunk chunk = new Chunk(origin + new Vector3(x * (size.x - 1) * step, y * (size.y - 1) * step, z * (size.z - 1) * step));
-                    chunk.Generate(noise, World.instance_.noiseProfile_);
+                    chunk.Generate(World.instance_.noiseProfile_);
                     chunks_[x, y, z] = chunk;
                 }
             }
         }
     }
 
-    public override void Build(Marcher marcher, Feature feature)
+    public override void Build()
     {
         foreach(Chunk chunk in chunks_)
-            chunk.Build(marcher, feature, World.instance_.size_, World.instance_.threshold_, World.instance_.step_, World.instance_.featureProfile_);
+            chunk.Build();
     }
 
     public override void Draw(Material material)
     {
         foreach(Chunk chunk in chunks_)
-            Graphics.DrawMesh(chunk.Mesh, chunk.Position, Quaternion.identity, material, 0);
+            chunk.Draw(material);
     }
 }

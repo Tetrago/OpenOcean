@@ -1,9 +1,8 @@
 ﻿using UnityEngine;
 
-public class Feature : MonoBehaviour
+public class Feature
 {
-    public ComputeShader shader_;
-
+    private ComputeShader shader_;
     private int kernel_;
 
     public struct Stack
@@ -11,8 +10,9 @@ public class Feature : MonoBehaviour
         public Vector3Int[] tops_;
     }
 
-    private void Awake()
+    public Feature()
     {
+        shader_ = Compute.Feature;
         kernel_ = shader_.FindKernel("CSMain");
     }
 

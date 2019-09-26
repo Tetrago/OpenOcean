@@ -57,48 +57,43 @@ public class DynamicChunkOrganizer : ChunkOrganizer
         unbuiltChunks_.Add(chunk);
     }
 
-    public override void Generate(Noise noise, Vector3 origin)
+    public override void Generate(Vector3 origin)
     {
         List<Chunk> chunks = new List<Chunk>(ungeneratedChunks_);
         chunks.ForEach((Chunk chunk) =>
         {
-            chunk.Generate(noise, World.instance_.noiseProfile_);
+            chunk.Generate(World.instance_.noiseProfile_);
             ungeneratedChunks_.Remove(chunk);
         });
     }
 
-    public override void Build(Marcher marcher, Feature feature)
+    public override void Build()
     {
         List<Chunk> chunks = new List<Chunk>(unbuiltChunks_);
         chunks.ForEach((Chunk chunk) =>
         {
-            chunk.Build(marcher, feature, World.instance_.size_, World.instance_.threshold_, World.instance_.step_, World.instance_.featureProfile_);
+            chunk.Build();
             unbuiltChunks_.Remove(chunk);
         });
     }
 
     public override void Draw(Material material)
     {
-        foreach(Chunk chunk in chunks_.Values)
-        {
-            if(Vector3.Distance(chunk.Position, settings_.submarine_.transform.position) < settings_.viewDist_ * World.instance_.size_.magnitude)
-                Graphics.DrawMesh(chunk.Mesh, chunk.Position, Quaternion.identity, material, 0);
-        }
-    }
-
-    public override void Update(Noise noise, Marcher marcher, Feature feature)
-    {
-        base.Update(noise, marcher, feature);
-
         if(Time.time - lastUpdate_ >= settings_.updateTime_)
         {
             Allocate();
             Clean();
 
-            Generate(noise, Vector3.zero);
-            Build(marcher, feature);
+            Generate(Vector3.zero);
+            Build();
 
             lastUpdate_ = Time.time;
+        }
+
+        foreach(Chunk chunk in chunks_.Values)
+        {
+            if(Vector3.Distance(chunk.Position, settings_.submarine_.transform.position) < settings_.viewDist_ * World.instance_.size_.magnitude)
+                chunk.Draw(material);
         }
     }
 

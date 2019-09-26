@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class Chunk
 {
@@ -7,25 +8,61 @@ public class Chunk
     private Mesh mesh_;
     private Feature.Stack stack_;
 
+    private Marcher marcher_;
+    private Noise noise_;
+    private Feature feature_;
+
+    private bool ready_;
+
     public Chunk(Vector3 pos)
     {
         pos_ = pos;
 
         mesh_ = new Mesh();
         mesh_.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+
+        marcher_ = new Marcher();
+        noise_ = new Noise();
+        feature_ = new Feature();
+
+        ready_ = false;
     }
 
-    public void Generate(Noise noise, NoiseProfile noiseProfile)
+    public void Generate(NoiseProfile noiseProfile)
     {
-        points_ = noise.Generate(World.instance_.size_, pos_, noiseProfile);
+        points_ = noise_.Generate(World.instance_.size_, pos_, noiseProfile);
     }
 
-    public void Build(Marcher marcher, Feature feature, Vector3Int size, float threshold, float step, FeatureProfile profile)
+    private bool IsReady()
     {
-        stack_ = World.instance_.Feature.Features(World.instance_.size_, points_, World.instance_.threshold_, World.instance_.featureProfile_);
-        MeshGenerator.Build(ref mesh_, World.instance_.Marcher.Triangulate(World.instance_.size_, points_, World.instance_.threshold_, World.instance_.step_));
+        return marcher_.Ready;
+    }
+
+    public void Build()
+    {
+        Coroutine.Instance.StartCoroutine(BuildProcess());
+    }
+
+    IEnumerator BuildProcess()
+    {
+        ready_ = false;
+
+        marcher_.Triangulate(points_);
+        stack_ = feature_.Features(World.instance_.size_, points_, World.instance_.threshold_, World.instance_.featureProfile_);
+
+        yield return new WaitUntil(IsReady);
+
+        MeshGenerator.Build(ref mesh_, marcher_.Triangles);
         mesh_.RecalculateNormals();
         ColliderManager.Collider(this);
+
+        ready_ = true;
+    }
+
+    public void Draw(Material material)
+    {
+        if(!ready_) return;
+        Graphics.DrawMesh(mesh_, pos_, Quaternion.identity, material, 0);
     }
 
     public float[] Points => points_;
