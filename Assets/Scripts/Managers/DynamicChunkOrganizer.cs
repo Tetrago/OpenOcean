@@ -28,11 +28,13 @@ public class DynamicChunkOrganizer : ChunkOrganizer
 
     public override void Allocate()
     {
+        Vector3 sizeMinusOne = new Vector3(World.instance_.size_.x - 1, World.instance_.size_.y - 1, World.instance_.size_.z - 1);
+
         Vector3 sub = settings_.submarine_.transform.position;
-        sub.x = Mathf.Ceil(sub.x / World.instance_.size_.x);
-        sub.y = Mathf.Ceil(sub.y / World.instance_.size_.y);
-        sub.z = Mathf.Ceil(sub.z / World.instance_.size_.z);
-        sub = Vector3.Scale(sub, World.instance_.size_);
+        sub.x = Mathf.Ceil(sub.x / (World.instance_.size_.x - 1));
+        sub.y = Mathf.Ceil(sub.y / (World.instance_.size_.y - 1));
+        sub.z = Mathf.Ceil(sub.z / (World.instance_.size_.z - 1));
+        sub = Vector3.Scale(sub, sizeMinusOne);
 
         for(float x = -settings_.viewDist_; x < settings_.viewDist_; ++x)
         {
@@ -40,9 +42,11 @@ public class DynamicChunkOrganizer : ChunkOrganizer
             {
                 for(float z = -settings_.viewDist_; z < settings_.viewDist_; ++z)
                 {
-                    Vector3 pos = sub + Vector3.Scale(new Vector3(x, y, z), new Vector3(World.instance_.size_.x - 1, World.instance_.size_.y - 1, World.instance_.size_.z - 1));
+                    Vector3 pos = sub + Vector3.Scale(new Vector3(x, y, z), sizeMinusOne);
                     if(!chunks_.ContainsKey(pos) && Vector3.Distance(settings_.submarine_.transform.position, pos) < settings_.viewDist_ * World.instance_.size_.magnitude)
+                    {
                         Create(pos);
+                    }
                 }
             }
         }
@@ -59,22 +63,22 @@ public class DynamicChunkOrganizer : ChunkOrganizer
 
     public override void Generate(Vector3 origin)
     {
-        List<Chunk> chunks = new List<Chunk>(ungeneratedChunks_);
-        chunks.ForEach((Chunk chunk) =>
+        ungeneratedChunks_.ForEach((Chunk chunk) =>
         {
             chunk.Generate(World.instance_.noiseProfile_);
-            ungeneratedChunks_.Remove(chunk);
         });
+
+        ungeneratedChunks_.Clear();
     }
 
     public override void Build()
     {
-        List<Chunk> chunks = new List<Chunk>(unbuiltChunks_);
-        chunks.ForEach((Chunk chunk) =>
+        unbuiltChunks_.ForEach((Chunk chunk) =>
         {
             chunk.Build();
-            unbuiltChunks_.Remove(chunk);
         });
+
+        unbuiltChunks_.Clear();
     }
 
     public override void Draw(Material material)

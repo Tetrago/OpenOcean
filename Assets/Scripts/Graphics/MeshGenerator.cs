@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Linq;
+using UnityEngine;
 
 public static class MeshGenerator
 {
@@ -24,7 +26,7 @@ public static class MeshGenerator
             t += 3;
         }
 
-        mesh.vertices = vertices;
-        mesh.triangles = indices;
+        Buffer.BlockCopy(triangles, 0, mesh.vertices, 0, triangles.Length * 3 * 3);
+        mesh.triangles = Enumerable.Range(0, triangles.Length * 3).Cast<int>().ToArray();
     }
 }

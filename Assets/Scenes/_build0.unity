@@ -157,14 +157,14 @@ MonoBehaviour:
   threshold_: 0.5
   step_: 1
   material_: {fileID: 2100000, guid: 65d404716f0747945b3636716370031b, type: 2}
-  size_: {x: 32, y: 32, z: 32}
+  size_: {x: 64, y: 64, z: 64}
   type_: 1
   staticSettings_:
     worldSize_: {x: 5, y: 5, z: 5}
   dynamicSettings_:
     submarine_: {fileID: 442335573}
-    viewDist_: 5
-    updateTime_: 30
+    viewDist_: 2
+    updateTime_: 10
 --- !u!4 &350823004
 Transform:
   m_ObjectHideFlags: 0
