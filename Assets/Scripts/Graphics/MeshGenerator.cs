@@ -1,32 +1,24 @@
-﻿using System;
-using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 
 public static class MeshGenerator
 {
     public static void Build(ref Mesh mesh, Marcher.Triangle[] triangles)
     {
-        Vector3[] vertices = new Vector3[triangles.Length * 3];
-        int[] indices = new int[triangles.Length * 3];
+        Vector3[] vectors = new Vector3[triangles.Length * 3];
+        int[] tris = new int[triangles.Length * 3];
 
-        uint v = 0u;
-        uint t = 0u;
-
-        foreach(Marcher.Triangle tri in triangles)
+        for(int i = 0, j = 0; j < triangles.Length; ++j, i += 3)
         {
-            vertices[v] = tri.a_;
-            vertices[v + 1u] = tri.b_;
-            vertices[v + 2u] = tri.c_;
+            vectors[i] = triangles[j].a_;
+            vectors[i + 1] = triangles[j].b_;
+            vectors[i + 2] = triangles[j].c_;
 
-            indices[t] = (int)v;
-            indices[t + 1u] = (int)v + 1;
-            indices[t + 2u] = (int)v + 2;
-
-            v += 3;
-            t += 3;
+            tris[i] = i;
+            tris[i + 1] = i + 1;
+            tris[i + 2] = i + 2;
         }
 
-        Buffer.BlockCopy(triangles, 0, mesh.vertices, 0, triangles.Length * 3 * 3);
-        mesh.triangles = Enumerable.Range(0, triangles.Length * 3).Cast<int>().ToArray();
+        mesh.vertices = vectors;
+        mesh.triangles = tris;
     }
 }
