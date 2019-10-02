@@ -4917,6 +4917,7 @@ GameObject:
   - component: {fileID: 8031411395455918072}
   - component: {fileID: 8959762972204628139}
   - component: {fileID: 8211221378684272553}
+  - component: {fileID: 7905586273226472735}
   m_Layer: 0
   m_Name: Submarine
   m_TagString: Untagged
@@ -4972,7 +4973,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   propellerInfluence_: 1
-  forceUp_: 0.01
   particles_: {fileID: 1291972913560870555}
 --- !u!114 &8031411395455918072
 MonoBehaviour:
@@ -5022,6 +5022,20 @@ CapsuleCollider:
   m_Height: 4.99
   m_Direction: 2
   m_Center: {x: -0.4, y: 0, z: 0.15}
+--- !u!114 &7905586273226472735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4814603090666599377}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e0f567191a6e554cbf4f20f3d908050, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  forceUp_: 0.01
+  particles_: {fileID: 1291972913560870555}
 --- !u!1 &7647403521029063003
 GameObject:
   m_ObjectHideFlags: 0

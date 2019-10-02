@@ -49,10 +49,29 @@ public class Feature
             fs.tops_ = tops;
         }
 
+        fs.tops_ = new Vector3Int[0u];
+
         countBuffer.Release();
         topBuffer.Release();
         pointsBuffer.Release();
 
         return fs;
+    }
+
+    public static void Populate(Chunk chunk)
+    {
+        System.Random rnd = new System.Random(World.instance_.seed_);
+
+        if(chunk.Features.tops_.Length != 0 && chunk.Features.tops_ != null)
+        {
+            foreach(Vector3Int point in chunk.Features.tops_)
+            {
+                foreach(FeatureProfile.Spawner sp in World.instance_.featureProfile_.spawners_)
+                {
+                    if(rnd.Next(0, 100) == sp.rarity_)
+                        GameObject.Instantiate(sp.go_, chunk.Position + point, Quaternion.identity);
+                }
+            }
+        }
     }
 }

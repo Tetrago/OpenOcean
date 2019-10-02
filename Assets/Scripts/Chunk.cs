@@ -12,8 +12,6 @@ public class Chunk
     private Noise noise_;
     private Feature feature_;
 
-    private bool ready_;
-
     public Chunk(Vector3 pos)
     {
         pos_ = pos;
@@ -24,8 +22,6 @@ public class Chunk
         marcher_ = new Marcher();
         noise_ = new Noise();
         feature_ = new Feature();
-
-        ready_ = false;
     }
 
     public void Generate(NoiseProfile noiseProfile)
@@ -33,35 +29,18 @@ public class Chunk
         points_ = noise_.Generate(World.instance_.size_, pos_, noiseProfile);
     }
 
-    private bool IsReady()
-    {
-        return marcher_.Ready;
-    }
-
     public void Build()
     {
-        Coroutine.Instance.StartCoroutine(BuildProcess());
-    }
-
-    IEnumerator BuildProcess()
-    {
-        ready_ = false;
-
         marcher_.Triangulate(points_);
         stack_ = feature_.Features(World.instance_.size_, points_, World.instance_.threshold_, World.instance_.featureProfile_);
-
-        yield return new WaitUntil(IsReady);
-
         MeshGenerator.Build(ref mesh_, marcher_.Triangles);
+        Feature.Populate(this);
         mesh_.RecalculateNormals();
         ColliderManager.Collider(this);
-
-        ready_ = true;
     }
 
     public void Draw(Material material)
     {
-        if(!ready_) return;
         Graphics.DrawMesh(mesh_, pos_, Quaternion.identity, material, 0);
     }
 

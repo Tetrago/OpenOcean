@@ -8,13 +8,14 @@ public class World : MonoBehaviour
 
     [Header("Chunk Generation")]
     public NoiseProfile noiseProfile_;
-    [HideInInspector] public FeatureProfile featureProfile_;
+    public FeatureProfile featureProfile_;
 
     [Header("World Generation")]
     [Range(-1, 1)] public float threshold_;
     public float step_;
     public Material material_;
     public Vector3Int size_;
+    public int seed_;
 
     [Header("Chunk Organization")]
     public ChunkOrganizer.Type type_;
