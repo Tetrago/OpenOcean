@@ -52,4 +52,10 @@ public class StaticChunkOrganizer : ChunkOrganizer
         foreach(Chunk chunk in chunks_)
             chunk.Draw(material);
     }
+
+    public override void Gizmos()
+    {
+        foreach(Chunk chunk in chunks_)
+            chunk.Gizmos();
+    }
 }

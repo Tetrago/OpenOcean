@@ -8,7 +8,6 @@ public class World : MonoBehaviour
 
     [Header("Chunk Generation")]
     public NoiseProfile noiseProfile_;
-    public FeatureProfile featureProfile_;
 
     [Header("World Generation")]
     [Range(-1, 1)] public float threshold_;
@@ -64,6 +63,12 @@ public class World : MonoBehaviour
     private void Update()
     {
         organizer_.Draw(material_);
+    }
+
+    private void OnDrawGizmos()
+    {
+        if(organizer_ != null)
+            organizer_.Gizmos();
     }
 
     private void OnValidate()

@@ -12,4 +12,5 @@ public abstract class ChunkOrganizer
     public abstract void Generate(Vector3 origin);
     public abstract void Build();
     public abstract void Draw(Material material);
+    public abstract void Gizmos();
 }

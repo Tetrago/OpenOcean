@@ -113,4 +113,10 @@ public class DynamicChunkOrganizer : ChunkOrganizer
             }
         });
     }
+
+    public override void Gizmos()
+    {
+        foreach(Chunk chunk in chunks_.Values)
+            chunk.Gizmos();
+    }
 }
