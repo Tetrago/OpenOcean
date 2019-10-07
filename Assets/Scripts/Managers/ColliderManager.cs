@@ -6,7 +6,7 @@ public static class ColliderManager
     private static Dictionary<Chunk, MeshCollider> colliders_ = new Dictionary<Chunk, MeshCollider>();
     private static GameObject parent_;
 
-    public static void Init()
+    static ColliderManager()
     {
         parent_ = new GameObject("Colliders");
     }
@@ -33,6 +33,7 @@ public static class ColliderManager
         GameObject go = new GameObject(pos.ToString());
         go.transform.position = pos;
         go.transform.parent = parent_.transform;
+        go.layer = LayerMask.NameToLayer("World");
         return go.AddComponent<MeshCollider>();
     }
 }

@@ -9,6 +9,7 @@ public class Spawner : MonoBehaviour {
     public Boid prefab;
     public float spawnRadius = 10;
     public int spawnCount = 10;
+    public bool randomColor;
     public Color colour;
     public GizmoType showSpawnRegion;
 
@@ -19,7 +20,10 @@ public class Spawner : MonoBehaviour {
             boid.transform.position = pos;
             boid.transform.forward = Random.insideUnitSphere;
 
-            boid.SetColour (colour);
+            if(!randomColor)
+                boid.SetColour(colour);
+            else
+                boid.SetColour(Random.ColorHSV(0, 1, 0.75f, 0.8f));
         }
     }
 

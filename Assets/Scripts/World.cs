@@ -43,7 +43,6 @@ public class World : MonoBehaviour
 
     private void Start()
     {
-        ColliderManager.Init();
         organizer_.Allocate();
 
         Generate();
