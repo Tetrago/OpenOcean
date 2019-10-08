@@ -89,6 +89,21 @@ public class Boid : MonoBehaviour {
         cachedTransform.forward = dir;
         position = cachedTransform.position;
         forward = dir;
+
+        if(Vector3.Distance(Submarine.PlayerController.instance_.transform.position, transform.position) >= settings.tpRange)
+        {
+            while(true)
+            {
+                Vector3 pos = PlayerCamera.instance_.transform.position + Random.insideUnitSphere * settings.tpSphere;
+                Vector3 vp = PlayerCamera.instance_.camera_.WorldToViewportPoint(pos);
+
+                if(vp.x <= -1 && vp.x >= 1 && vp.y <= -1 && vp.y >= 1 || vp.z < 0)
+                {
+                    transform.position = pos;
+                    break;
+                }
+            }
+        }
     }
 
     bool IsHeadingForCollision () {

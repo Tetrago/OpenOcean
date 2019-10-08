@@ -13,10 +13,22 @@ public class Spawner : MonoBehaviour {
     public Color colour;
     public GizmoType showSpawnRegion;
 
+    private static GameObject parent_;
+
+    public static Transform Parent
+    {
+        get
+        {
+            if(parent_ == null)
+                parent_ = new GameObject("Boids");
+            return parent_.transform;
+        }
+    }
+
     void Awake () {
         for (int i = 0; i < spawnCount; i++) {
             Vector3 pos = transform.position + Random.insideUnitSphere * spawnRadius;
-            Boid boid = Instantiate (prefab);
+            Boid boid = Instantiate (prefab, Parent);
             boid.transform.position = pos;
             boid.transform.forward = Random.insideUnitSphere;
 

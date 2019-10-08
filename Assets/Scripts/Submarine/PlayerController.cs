@@ -6,6 +6,8 @@ namespace Submarine
     [RequireComponent(typeof(Propeller))]
     public class PlayerController : MonoBehaviour
     {
+        public static PlayerController instance_;
+
         public float propellerFactor_;
         public Vector2 acceleration_;
         public float pitchTorque_;
@@ -18,6 +20,8 @@ namespace Submarine
 
         private void Awake()
         {
+            instance_ = this;
+
             prop_ = GetComponent<Propeller>();
             rb_ = GetComponent<Rigidbody>();
         }

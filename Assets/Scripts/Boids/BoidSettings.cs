@@ -23,4 +23,6 @@ public class BoidSettings : ScriptableObject {
     public float avoidCollisionWeight = 10;
     public float collisionAvoidDst = 5;
 
+    public float tpRange = 250;
+    public float tpSphere = 4;
 }

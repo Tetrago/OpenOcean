@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using Debug = UnityEngine.Gizmos;
 
 public class Chunk
 {
@@ -24,6 +23,19 @@ public class Chunk
     public void Generate(NoiseProfile noiseProfile)
     {
         points_ = noise_.Generate(World.instance_.size_, pos_, noiseProfile);
+        Transform parent = World.GetParent(this);
+
+        foreach(Spawnable spawn in World.instance_.spawnables_)
+        {
+            for(uint i = 0u; i < spawn.iterations_; ++i)
+            {
+                if(Mathf.CeilToInt(Random.Range(0, spawn.rarity_)) == 1)
+                {
+                    Vector3 pos = pos_ + Random.insideUnitSphere * World.instance_.size_.magnitude;
+                    GameObject.Instantiate(spawn.prefab_, pos, Quaternion.identity, parent);
+                }
+            }
+        }
     }
 
     public void Build()

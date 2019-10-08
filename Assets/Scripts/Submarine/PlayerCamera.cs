@@ -2,6 +2,8 @@
 
 class PlayerCamera : MonoBehaviour
 {
+    public static PlayerCamera instance_;
+
     public Vector2 orbitClamp_ = new Vector2(0, 90);
     public Vector2 scrollClamp_ = new Vector2(1.5f, 100);
     public float sensitivity_ = 4.0f;
@@ -20,6 +22,8 @@ class PlayerCamera : MonoBehaviour
 
     private void Awake()
     {
+        instance_ = this;
+
         pivot_ = new GameObject("Pivot");
         transform.parent = pivot_.transform;
 
