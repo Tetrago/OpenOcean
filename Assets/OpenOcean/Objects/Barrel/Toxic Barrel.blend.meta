@@ -12,6 +12,7 @@ ModelImporter:
     2100000: None__nuclear-power-radioactive-decay-radioactive-waste-hazard-symbol
     2100002: Material_001
     2100004: Material_002
+    2100006: Material_003
     2300000: Barrel
     2300002: Circle
     3300000: Barrel
@@ -20,7 +21,27 @@ ModelImporter:
     4300002: Barrel
     7400000: Default Take
     9500000: //RootNode
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_001
+    second: {fileID: 2100000, guid: 8036f21e4d76aed4882132bfcedce697, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_002
+    second: {fileID: 2100000, guid: 85b296587a054de40aa27f1e523e4119, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material_003
+    second: {fileID: 2100000, guid: 60d9096a83467d04686bf43b7e6cb796, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: None__nuclear-power-radioactive-decay-radioactive-waste-hazard-symbol
+    second: {fileID: 2100000, guid: 6fce79a1b3f6a9a4b90e6ce5c198c1a5, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

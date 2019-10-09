@@ -29,7 +29,7 @@ public class Chunk
         {
             for(uint i = 0u; i < spawn.iterations_; ++i)
             {
-                if(Mathf.CeilToInt(Random.Range(0, spawn.rarity_)) == 1)
+                if(WorldRand.Random.Next((int)spawn.rarity_) == 1)
                 {
                     Vector3 pos = pos_ + Random.insideUnitSphere * World.instance_.size_.magnitude;
                     GameObject.Instantiate(spawn.prefab_, pos, Quaternion.identity, parent);

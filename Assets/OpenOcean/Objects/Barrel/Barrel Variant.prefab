@@ -9,7 +9,7 @@ Rigidbody:
   m_GameObject: {fileID: 4620106242867472479}
   serializedVersion: 2
   m_Mass: 1
-  m_Drag: 0
+  m_Drag: 1
   m_AngularDrag: 0.05
   m_UseGravity: 1
   m_IsKinematic: 0
@@ -29,7 +29,19 @@ CapsuleCollider:
   m_Radius: 1.0468645
   m_Height: 3.5
   m_Direction: 1
-  m_Center: {x: 0, y: 1.25, z: 0.04686451}
+  m_Center: {x: 0, y: 1.25, z: -0.1}
+--- !u!114 &6815663669700025709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4620106242867472479}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 239bc80a4488e194fbf55f8c9e30d74e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &4620106242867572475
 PrefabInstance:
   m_ObjectHideFlags: 0
