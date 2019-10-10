@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+////////////////////
+///  DISCLAIMER  ///
+///  NOT MINE    ///
+////////////////////
+
 public class Spawner : MonoBehaviour {
 
     public enum GizmoType { Never, SelectedOnly, Always }

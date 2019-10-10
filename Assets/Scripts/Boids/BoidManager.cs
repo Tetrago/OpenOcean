@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+////////////////////
+///  DISCLAIMER  ///
+///  NOT MINE    ///
+////////////////////
+
 public class BoidManager : MonoBehaviour {
 
     const int threadGroupSize = 1024;

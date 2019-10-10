@@ -1,4 +1,9 @@
-﻿#pragma kernel CSMain
+﻿////////////////////
+///  DISCLAIMER  ///
+///  NOT MINE    ///
+////////////////////
+
+#pragma kernel CSMain
 static const int threadGroupSize = 1024;
 
 struct Boid {

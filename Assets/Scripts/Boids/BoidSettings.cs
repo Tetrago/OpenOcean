@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+////////////////////
+///  DISCLAIMER  ///
+///  NOT MINE    ///
+////////////////////
+
 [CreateAssetMenu]
 public class BoidSettings : ScriptableObject {
     // Settings
