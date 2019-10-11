@@ -18,6 +18,13 @@ Shader "Unlit/Geometry"
 		_BladeWidthRandom("Blade Width Random", Float) = 0.02
 		_BladeHeight("Blade Height", Float) = 0.5
 		_BladeHeightRandom("Blade Height Random", Float) = 0.3
+
+		_WindDistortionMap("Wind Distortion Map", 2D) = "white" {}
+		_WindFrequency("Wind Frequency", Vector) = (0.05, 0.05, 0, 0)
+		_WindStrength("Wind Strength", Float) = 1
+
+		_BladeForward("Blade Forward Amount", Float) = 0.38
+		_BladeCurve("Blade Curvature Amount", Range(1, 4)) = 2
     }
     SubShader
     {
@@ -36,6 +43,8 @@ Shader "Unlit/Geometry"
             
             #pragma multi_compile_fog
 
+			#define BLADE_SEGMENTS 3
+
 			struct appdata
 			{
 				float4 vertex : POSITION;
@@ -50,6 +59,13 @@ Shader "Unlit/Geometry"
 				float4 tangent : TANGENT;
 			};
 
+			struct vOut
+			{
+				float4 vertex : SV_POSITION;
+				float4 normal : NORMAL;
+				float4 tangent : TANGENT;
+			};
+
 			struct gOut
 			{
 				float4 pos_ : SV_POSITION;
@@ -57,7 +73,7 @@ Shader "Unlit/Geometry"
 			};
 
             #include "UnityCG.cginc"
-			#include "CustomTesselation.cginc"
+			#include "CustomTessellation.cginc"
 
             float4 _TopColor;
 			float4 _BottomColor;
@@ -68,6 +84,14 @@ Shader "Unlit/Geometry"
 			float _BladeHeightRandom;
 			float _BladeWidth;
 			float _BladeWidthRandom;
+
+			sampler2D _WindDistortionMap;
+			float4 _WindDistortionMap_ST;
+			float2 _WindFrequency;
+			float _WindStrength;
+
+			float _BladeForward;
+			float _BladeCurve;
 
 			////////////////////
 			/// DISCLAIMER	 ///
@@ -105,7 +129,15 @@ Shader "Unlit/Geometry"
 				return o;
 			}
 
-			[maxvertexcount(3)]
+			gOut GenerateGrassVertex(float3 vertexPosition, float width, float height, float forward, float2 uv, float3x3 modelMatrix)
+			{
+				float3 tanPoint = float3(width, forward, height);
+
+				float3 localPosition = vertexPosition + mul(modelMatrix, tanPoint);
+				return VertexOutput(localPosition, uv);
+			}
+
+			[maxvertexcount(BLADE_SEGMENTS * 2 + 1)]
 			void geo(triangle v2f IN[3] : SV_POSITION, inout TriangleStream<gOut> tris)
 			{
 				float4 pos = IN[0].vertex;
@@ -117,14 +149,34 @@ Shader "Unlit/Geometry"
 				float3x3 facingRotationMatrix = AngleAxis3x3(rand(pos) * UNITY_TWO_PI, float3(0, 0, 1));
 				float3x3 bendRotationMatrix = AngleAxis3x3(rand(pos.zzx) * _BendRotationRandom * UNITY_PI * 0.5, float3(-1, 0, 0));
 
-				float3x3 modelMatrix = mul(mul(tanToLocal, facingRotationMatrix), bendRotationMatrix);
+				float2 uv = pos.xz * _WindDistortionMap_ST.xy + _WindDistortionMap_ST.zw + _WindFrequency * _Time.y;
+				float2 windSample = (tex2Dlod(_WindDistortionMap, float4(uv, 0, 0)).xy * 2 - 1) * _WindStrength;
+				float3 wind = normalize(float3(windSample.x, windSample.y, 0));
+				float3x3 windRotation = AngleAxis3x3(UNITY_PI * windSample, wind);
+
+				float3x3 modelMatrix = mul(mul(mul(tanToLocal, windRotation), facingRotationMatrix), bendRotationMatrix);
+				float3x3 modelMatrixFacing = mul(tanToLocal, facingRotationMatrix);
 
 				float height = (rand(pos.zyx) * 2 - 1) * _BladeHeightRandom + _BladeHeight;
 				float width = (rand(pos.xzy) * 2 - 1) * _BladeWidthRandom + _BladeWidth;
 
-				tris.Append(VertexOutput(pos + mul(modelMatrix, float3(width, 0, 0)), float2(0, 0)));
-				tris.Append(VertexOutput(pos + mul(modelMatrix, float3(-width, 0, 0)), float2(1, 0)));
-				tris.Append(VertexOutput(pos + mul(modelMatrix, float3(0, 0, height)), float2(0.5, 1)));
+				float forward = rand(pos.yyz) * _BladeForward;
+
+				for(int i = 0; i < BLADE_SEGMENTS; ++i)
+				{
+					float t = i / (float)BLADE_SEGMENTS;
+
+					float segmentHeight = height * t;
+					float segmentWidth = width * (1 - t);
+
+					float segmentForward = pow(t, _BladeCurve) * forward;
+					float3x3 transformMatrix = i == 0 ? modelMatrixFacing : modelMatrix;
+
+					tris.Append(GenerateGrassVertex(pos, segmentWidth, segmentHeight, segmentForward, float2(0, t), transformMatrix));
+					tris.Append(GenerateGrassVertex(pos, -segmentWidth, segmentHeight, segmentForward, float2(1, t), transformMatrix));
+				}
+
+				tris.Append(GenerateGrassVertex(pos, 0, height, forward, float2(0.5, 1), modelMatrix));
 			}
 
             v2f vert(appdata v)

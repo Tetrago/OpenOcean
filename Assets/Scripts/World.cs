@@ -10,6 +10,7 @@ public class World : MonoBehaviour
     [Header("Chunk Generation")]
     public NoiseProfile noiseProfile_;
     public Spawnable[] spawnables_;
+    public float grassHeight_;
 
     [Header("World Generation")]
     [Range(-1, 1)] public float threshold_;
@@ -41,6 +42,12 @@ public class World : MonoBehaviour
             parents_.Add(chunk.Position, go);
             return go;
         }
+    }
+
+    public static void KillParent(Chunk chunk)
+    {
+        if(parents_.ContainsKey(chunk.Position))
+            parents_.Remove(chunk.Position);
     }
 
     private void Awake()
