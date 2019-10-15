@@ -6,7 +6,7 @@ public class Field : MonoBehaviour
 
     public GameObject prefab_;
 
-    public const float PLANES_PER_CHUNK_AXIS = 4;
+    public const float PLANES_PER_CHUNK_AXIS = 8;
 
     private void Awake()
     {

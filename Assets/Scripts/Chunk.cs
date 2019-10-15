@@ -4,7 +4,7 @@ public class Chunk
 {
     private float[] points_;
     private Vector3 pos_;
-    private Mesh mesh_;
+    private MeshManager mesh_;
 
     private Marcher marcher_;
     private Noise noise_;
@@ -13,8 +13,7 @@ public class Chunk
     {
         pos_ = pos;
 
-        mesh_ = new Mesh();
-        mesh_.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+        mesh_ = new MeshManager();
 
         marcher_ = new Marcher();
         noise_ = new Noise();
@@ -49,14 +48,13 @@ public class Chunk
     public void Build()
     {
         marcher_.Triangulate(points_);
-        MeshGenerator.Build(ref mesh_, marcher_.Triangles);
-        mesh_.RecalculateNormals();
+        mesh_.Build(marcher_.Triangles);
         ColliderManager.Collider(this);
     }
 
     public void Draw(Material material)
     {
-        Graphics.DrawMesh(mesh_, pos_, Quaternion.identity, material, 0);
+        mesh_.Draw(pos_, material);
     }
 
     public void Gizmos()
@@ -66,5 +64,4 @@ public class Chunk
 
     public float[] Points => points_;
     public Vector3 Position => pos_;
-    public Mesh Mesh => mesh_;
 }

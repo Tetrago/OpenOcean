@@ -2,7 +2,7 @@
 
 public static class MeshGenerator
 {
-    public static void Build(ref Mesh mesh, Marcher.Triangle[] triangles)
+    public static MeshManager.Definition Build(Marcher.Triangle[] triangles)
     {
         Vector3[] vectors = new Vector3[triangles.Length * 3];
         int[] tris = new int[triangles.Length * 3];
@@ -18,7 +18,12 @@ public static class MeshGenerator
             tris[i + 2] = i + 2;
         }
 
-        mesh.vertices = vectors;
-        mesh.triangles = tris;
+        MeshManager.Definition definition = new MeshManager.Definition
+        {
+            vertices_ = vectors,
+            triangles_ = tris
+        };
+
+        return definition;
     }
 }

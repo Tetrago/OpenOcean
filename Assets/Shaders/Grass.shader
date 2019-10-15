@@ -43,7 +43,12 @@ Shader "Unlit/Geometry"
             
             #pragma multi_compile_fog
 
+			#pragma require geometry
+			#pragma require tessell	ation tessHW
+
 			#define BLADE_SEGMENTS 3
+
+			#include "UnityCG.cginc"
 
 			struct appdata
 			{
@@ -59,20 +64,13 @@ Shader "Unlit/Geometry"
 				float4 tangent : TANGENT;
 			};
 
-			struct vOut
-			{
-				float4 vertex : SV_POSITION;
-				float4 normal : NORMAL;
-				float4 tangent : TANGENT;
-			};
-
 			struct gOut
 			{
 				float4 pos_ : SV_POSITION;
 				float2 uv_ : TEXTCOORD0;
+				UNITY_FOG_COORDS(1)
 			};
 
-            #include "UnityCG.cginc"
 			#include "CustomTessellation.cginc"
 
             float4 _TopColor;
@@ -126,13 +124,13 @@ Shader "Unlit/Geometry"
 				gOut o;
 				o.pos_ = UnityObjectToClipPos(pos);
 				o.uv_ = uv;
+				UNITY_TRANSFER_FOG(o, o.pos_);
 				return o;
 			}
 
 			gOut GenerateGrassVertex(float3 vertexPosition, float width, float height, float forward, float2 uv, float3x3 modelMatrix)
 			{
 				float3 tanPoint = float3(width, forward, height);
-
 				float3 localPosition = vertexPosition + mul(modelMatrix, tanPoint);
 				return VertexOutput(localPosition, uv);
 			}
@@ -191,6 +189,7 @@ Shader "Unlit/Geometry"
             fixed4 frag(gOut i) : SV_Target
             {
 				fixed4 col = lerp(_BottomColor, _TopColor, i.uv_.y);
+				UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;
             }
 
